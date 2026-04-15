@@ -1,4 +1,4 @@
-package com.example.e_voting
+﻿package com.example.e_voting
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -80,14 +80,16 @@ class StudentDashboard : AppCompatActivity() {
                     candidates.addAll(items)
                     adapter.notifyDataSetChanged()
 
-                    val hasAnyVotedPeriod = items.any { it.hasVoted }
-                    findViewById<TextView>(R.id.txtStatusMessage).text =
-                        if (hasAnyVotedPeriod) {
-                            "Kamu sudah vote di periode aktif yang tersedia."
-                        } else {
-                            "Pilih kandidat aktif untuk periode yang sedang berjalan."
-                        }
+                    val statusText = when {
+                        items.isEmpty() -> "Belum ada voting aktif atau hasil periode yang sudah selesai."
+                        items.first().displayMode == "result" -> "Hasil pemilihan sudah tersedia."
+                        items.any { it.hasVoted } -> "Vote kamu sudah tersimpan."
+                        else -> "Pilih pasangan kandidat untuk vote."
+                    }
+                    findViewById<TextView>(R.id.txtStatusMessage).text = statusText
 
+                    findViewById<TextView>(R.id.txtEmptyStateStudent).text =
+                        "Belum ada voting aktif atau hasil pemilihan."
                     findViewById<View>(R.id.txtEmptyStateStudent).visibility =
                         if (items.isEmpty()) View.VISIBLE else View.GONE
                 }.onFailure {
@@ -100,7 +102,7 @@ class StudentDashboard : AppCompatActivity() {
     private fun confirmVote(candidate: CandidateItem) {
         AlertDialog.Builder(this)
             .setTitle("Konfirmasi vote")
-            .setMessage("Vote ${candidate.studentName} untuk periode ${candidate.periodTitle}? Kamu hanya bisa vote 1 kali di periode ini.")
+            .setMessage("Vote pasangan ${candidate.presidentName} & ${candidate.viceName} untuk periode ${candidate.periodTitle}? Kamu hanya bisa vote 1 kali di periode ini.")
             .setPositiveButton("Vote") { _, _ ->
                 submitVote(candidate)
             }
@@ -169,16 +171,23 @@ class StudentDashboard : AppCompatActivity() {
                 add(
                     CandidateItem(
                         candidateId = item.optInt("candidateid"),
-                        picture = item.optString("picture"),
-                        studentId = item.optInt("studentid"),
+                        presidentPicture = item.optString("picture"),
+                        vicePicture = item.optString("vice_picture", item.optString("picture")),
+                        presidentStudentId = item.optInt("president_studentid", item.optInt("studentid")),
+                        viceStudentId = item.optInt("vice_studentid", item.optInt("studentid")),
                         periodId = item.optInt("periodid"),
-                        studentName = item.optString("student_name"),
+                        presidentName = item.optString("president_name"),
+                        viceName = item.optString("vice_name"),
                         vision = item.optString("vision"),
                         mission = item.optString("mission"),
                         periodTitle = item.optString("period_title"),
                         startDate = item.optString("startdate"),
                         endDate = item.optString("enddate"),
-                        hasVoted = item.optInt("has_voted", 0) == 1
+                        hasVoted = item.optInt("has_voted", 0) == 1,
+                        isVotedCandidate = item.optInt("is_voted_candidate", 0) == 1,
+                        voteCount = item.optInt("vote_count", 0),
+                        isWinner = item.optInt("is_winner", 0) == 1,
+                        displayMode = item.optString("display_mode", "voting")
                     )
                 )
             }

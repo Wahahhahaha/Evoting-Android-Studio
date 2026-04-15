@@ -1,11 +1,10 @@
-package com.example.e_voting
+﻿package com.example.e_voting
 
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.net.Uri
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,24 +25,36 @@ import kotlin.concurrent.thread
 
 class AddCandidate : AppCompatActivity() {
 
-    private lateinit var studentSpinner: Spinner
+    private lateinit var presidentSpinner: Spinner
+    private lateinit var viceSpinner: Spinner
     private lateinit var visionInput: TextInputEditText
     private lateinit var missionInput: TextInputEditText
     private lateinit var periodTitleInput: TextInputEditText
     private lateinit var startDateInput: TextInputEditText
     private lateinit var endDateInput: TextInputEditText
-    private lateinit var saveButton: Button
-    private lateinit var choosePictureButton: MaterialButton
-    private lateinit var imagePreview: ShapeableImageView
+    private lateinit var saveButton: MaterialButton
+    private lateinit var choosePresidentPictureButton: MaterialButton
+    private lateinit var chooseVicePictureButton: MaterialButton
+    private lateinit var presidentImagePreview: ShapeableImageView
+    private lateinit var viceImagePreview: ShapeableImageView
 
     private val studentOptions = mutableListOf<StudentOption>()
-    private var selectedPhotoUri: Uri? = null
+    private var selectedPresidentPhotoUri: Uri? = null
+    private var selectedVicePhotoUri: Uri? = null
 
-    private val imagePickerLauncher =
+    private val presidentImagePickerLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
-                selectedPhotoUri = uri
-                imagePreview.setImageURI(uri)
+                selectedPresidentPhotoUri = uri
+                presidentImagePreview.setImageURI(uri)
+            }
+        }
+
+    private val viceImagePickerLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                selectedVicePhotoUri = uri
+                viceImagePreview.setImageURI(uri)
             }
         }
 
@@ -51,18 +62,25 @@ class AddCandidate : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.add_candidate_activity)
 
-        studentSpinner = findViewById(R.id.spinner_student)
+        presidentSpinner = findViewById(R.id.spinner_chairman)
+        viceSpinner = findViewById(R.id.spinner_vice)
         visionInput = findViewById(R.id.editvision)
         missionInput = findViewById(R.id.editmission)
         periodTitleInput = findViewById(R.id.editPeriodTitle)
         startDateInput = findViewById(R.id.editdatestart)
         endDateInput = findViewById(R.id.editdateend)
-        saveButton = findViewById(R.id.button)
-        choosePictureButton = findViewById(R.id.btn_choose_picture)
-        imagePreview = findViewById(R.id.img_preview)
+        saveButton = findViewById(R.id.btnSaveCandidate)
+        choosePresidentPictureButton = findViewById(R.id.btn_choose_chairman)
+        chooseVicePictureButton = findViewById(R.id.btn_choose_vice)
+        presidentImagePreview = findViewById(R.id.img_preview_chairman)
+        viceImagePreview = findViewById(R.id.img_preview_vice)
 
-        choosePictureButton.setOnClickListener {
-            imagePickerLauncher.launch("image/*")
+        choosePresidentPictureButton.setOnClickListener {
+            presidentImagePickerLauncher.launch("image/*")
+        }
+
+        chooseVicePictureButton.setOnClickListener {
+            viceImagePickerLauncher.launch("image/*")
         }
 
         setupDatePicker(startDateInput)
@@ -97,8 +115,11 @@ class AddCandidate : AppCompatActivity() {
                 result.onSuccess { items ->
                     studentOptions.clear()
                     studentOptions.addAll(items)
-                    studentSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, studentOptions.map { it.name })
-                    saveButton.isEnabled = studentOptions.isNotEmpty()
+                    val names = studentOptions.map { it.name }
+                    val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, names)
+                    presidentSpinner.adapter = adapter
+                    viceSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, names)
+                    saveButton.isEnabled = studentOptions.size >= 2
                 }.onFailure {
                     Toast.makeText(this, "Gagal memuat siswa: ${it.message}", Toast.LENGTH_LONG).show()
                 }
@@ -107,21 +128,30 @@ class AddCandidate : AppCompatActivity() {
     }
 
     private fun submitCandidate() {
-        val selectedStudent = studentOptions.getOrNull(studentSpinner.selectedItemPosition)
+        val selectedPresident = studentOptions.getOrNull(presidentSpinner.selectedItemPosition)
+        val selectedVice = studentOptions.getOrNull(viceSpinner.selectedItemPosition)
         val vision = visionInput.text?.toString()?.trim().orEmpty()
         val mission = missionInput.text?.toString()?.trim().orEmpty()
         val periodTitle = periodTitleInput.text?.toString()?.trim().orEmpty()
         val startDate = startDateInput.text?.toString()?.trim().orEmpty()
         val endDate = endDateInput.text?.toString()?.trim().orEmpty()
-        val photoUri = selectedPhotoUri
+        val presidentPhotoUri = selectedPresidentPhotoUri
+        val vicePhotoUri = selectedVicePhotoUri
 
-        if (selectedStudent == null || vision.isBlank() || mission.isBlank() || periodTitle.isBlank() || startDate.isBlank() || endDate.isBlank() || photoUri == null) {
-            Toast.makeText(this, "Semua field wajib diisi termasuk foto", Toast.LENGTH_SHORT).show()
+        if (selectedPresident == null || selectedVice == null || vision.isBlank() || mission.isBlank() || periodTitle.isBlank() || startDate.isBlank() || endDate.isBlank() || presidentPhotoUri == null || vicePhotoUri == null) {
+            Toast.makeText(this, "Semua field wajib diisi termasuk 2 foto", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (selectedPresident.studentId == selectedVice.studentId) {
+            Toast.makeText(this, "Ketua dan wakil harus berbeda", Toast.LENGTH_SHORT).show()
             return
         }
 
         saveButton.isEnabled = false
-        choosePictureButton.isEnabled = false
+        choosePresidentPictureButton.isEnabled = false
+        chooseVicePictureButton.isEnabled = false
+
         thread {
             val result = runCatching {
                 val boundary = "Boundary-${UUID.randomUUID()}"
@@ -135,13 +165,15 @@ class AddCandidate : AppCompatActivity() {
                 }
 
                 DataOutputStream(connection.outputStream).use { output ->
-                    writeFormField(output, boundary, "studentid", selectedStudent.studentId.toString())
+                    writeFormField(output, boundary, "presidentid", selectedPresident.studentId.toString())
+                    writeFormField(output, boundary, "viceid", selectedVice.studentId.toString())
                     writeFormField(output, boundary, "vision", vision)
                     writeFormField(output, boundary, "mission", mission)
                     writeFormField(output, boundary, "title", periodTitle)
                     writeFormField(output, boundary, "startdate", startDate)
                     writeFormField(output, boundary, "enddate", endDate)
-                    writePhotoField(output, boundary, "photo", photoUri)
+                    writePhotoField(output, boundary, "photo_president", presidentPhotoUri, "president")
+                    writePhotoField(output, boundary, "photo_vice", vicePhotoUri, "vice")
                     output.writeBytes("--$boundary--\r\n")
                     output.flush()
                 }
@@ -157,7 +189,8 @@ class AddCandidate : AppCompatActivity() {
 
             runOnUiThread {
                 saveButton.isEnabled = true
-                choosePictureButton.isEnabled = true
+                choosePresidentPictureButton.isEnabled = true
+                chooseVicePictureButton.isEnabled = true
                 result.onSuccess { response ->
                     val success = response.optBoolean("success", false)
                     Toast.makeText(this, response.optString("message"), Toast.LENGTH_SHORT).show()
@@ -179,14 +212,14 @@ class AddCandidate : AppCompatActivity() {
         output.writeBytes("\r\n")
     }
 
-    private fun writePhotoField(output: DataOutputStream, boundary: String, key: String, uri: Uri) {
+    private fun writePhotoField(output: DataOutputStream, boundary: String, key: String, uri: Uri, prefix: String) {
         val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
         val extension = when (mimeType) {
             "image/png" -> "png"
             "image/webp" -> "webp"
             else -> "jpg"
         }
-        val fileName = "candidate_${System.currentTimeMillis()}.$extension"
+        val fileName = "${prefix}_${System.currentTimeMillis()}.$extension"
 
         output.writeBytes("--$boundary\r\n")
         output.writeBytes("Content-Disposition: form-data; name=\"$key\"; filename=\"$fileName\"\r\n")

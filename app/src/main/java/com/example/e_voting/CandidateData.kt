@@ -1,4 +1,4 @@
-package com.example.e_voting
+﻿package com.example.e_voting
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -43,9 +43,11 @@ class CandidateData : AppCompatActivity() {
             onEdit = { candidate ->
                 val intent = Intent(this, EditCandidate::class.java).apply {
                     putExtra(EditCandidate.EXTRA_CANDIDATE_ID, candidate.candidateId)
-                    putExtra(EditCandidate.EXTRA_STUDENT_ID, candidate.studentId)
                     putExtra(EditCandidate.EXTRA_PERIOD_ID, candidate.periodId)
-                    putExtra(EditCandidate.EXTRA_STUDENT_NAME, candidate.studentName)
+                    putExtra(EditCandidate.EXTRA_PRESIDENT_ID, candidate.presidentStudentId)
+                    putExtra(EditCandidate.EXTRA_VICE_ID, candidate.viceStudentId)
+                    putExtra(EditCandidate.EXTRA_PRESIDENT_PICTURE, candidate.presidentPicture)
+                    putExtra(EditCandidate.EXTRA_VICE_PICTURE, candidate.vicePicture)
                     putExtra(EditCandidate.EXTRA_VISION, candidate.vision)
                     putExtra(EditCandidate.EXTRA_MISSION, candidate.mission)
                     putExtra(EditCandidate.EXTRA_PERIOD_TITLE, candidate.periodTitle)
@@ -108,7 +110,7 @@ class CandidateData : AppCompatActivity() {
     private fun confirmDelete(candidate: CandidateItem) {
         AlertDialog.Builder(this)
             .setTitle("Hapus kandidat")
-            .setMessage("Hapus kandidat ${candidate.studentName}?")
+            .setMessage("Hapus pasangan ${candidate.presidentName} & ${candidate.viceName}?")
             .setPositiveButton("Hapus") { _, _ ->
                 deleteCandidate(candidate)
             }
@@ -178,16 +180,23 @@ class CandidateData : AppCompatActivity() {
                 add(
                     CandidateItem(
                         candidateId = item.optInt("candidateid"),
-                        picture = item.optString("picture"),
-                        studentId = item.optInt("studentid"),
+                        presidentPicture = item.optString("picture"),
+                        vicePicture = item.optString("vice_picture", item.optString("picture")),
+                        presidentStudentId = item.optInt("president_studentid", item.optInt("studentid")),
+                        viceStudentId = item.optInt("vice_studentid", item.optInt("studentid")),
                         periodId = item.optInt("periodid"),
-                        studentName = item.optString("student_name"),
+                        presidentName = item.optString("president_name"),
+                        viceName = item.optString("vice_name"),
                         vision = item.optString("vision"),
                         mission = item.optString("mission"),
                         periodTitle = item.optString("period_title"),
                         startDate = item.optString("startdate"),
                         endDate = item.optString("enddate"),
-                        hasVoted = item.optInt("has_voted", 0) == 1
+                        hasVoted = item.optInt("has_voted", 0) == 1,
+                        isVotedCandidate = item.optInt("is_voted_candidate", 0) == 1,
+                        voteCount = item.optInt("vote_count", 0),
+                        isWinner = item.optInt("is_winner", 0) == 1,
+                        displayMode = item.optString("display_mode", "voting")
                     )
                 )
             }

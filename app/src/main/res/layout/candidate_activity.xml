@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -15,9 +15,34 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <TextView
+            android:id="@+id/txtResultBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="#FFE082"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:text="WINNER"
+            android:textColor="#4E342E"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/txtPeriodLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:text="Period 2026/2027"
+            android:textColor="#8D6E63"
+            android:textSize="12sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -43,21 +68,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Chairman"
+                    android:gravity="center"
+                    android:text="President"
                     android:textColor="#3E2723"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:gravity="center"/>
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
                 android:text="&amp;"
                 android:textColor="#FBC02D"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginHorizontal="8dp"/>
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -81,13 +106,25 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Vice Chairman"
+                    android:gravity="center"
+                    android:text="Vice"
                     android:textColor="#3E2723"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:gravity="center"/>
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtVoteCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:text="Total vote: 0"
+            android:textColor="#5D4037"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <View
             android:layout_width="match_parent"
@@ -104,17 +141,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Vision"
+                android:textAllCaps="true"
                 android:textColor="#F9A825"
                 android:textSize="13sp"
-                android:textStyle="bold"
-                android:textAllCaps="true"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/txtVisi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="Mewujudkan lingkungan sekolah yang ceria dan inovatif."
+                android:text="Vision text"
                 android:textColor="#5D4037"
                 android:textSize="14sp" />
 
@@ -122,16 +159,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mission"
+                android:textAllCaps="true"
                 android:textColor="#F9A825"
                 android:textSize="13sp"
-                android:textStyle="bold"
-                android:textAllCaps="true"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/txtMisi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="1. Mengadakan event mingguan.\n2. Mendengarkan aspirasi siswa."
+                android:text="Mission text"
                 android:textColor="#5D4037"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -142,7 +179,7 @@
             android:layout_height="55dp"
             android:layout_marginTop="20dp"
             android:backgroundTint="#FBC02D"
-            android:text="VOTE FOR THIS PAIR ☀️"
+            android:text="Vote"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
