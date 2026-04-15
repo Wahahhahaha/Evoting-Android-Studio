@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFDED">
@@ -12,14 +13,25 @@
         android:background="@drawable/sunny_header_wave"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="-10dp"
+        android:layout_marginEnd="-10dp"
+        android:alpha="0.4"
+        android:src="@drawable/ic_sun"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#FFFFFF" />
+
     <TextView
-        android:id="@+id/addTitle"
+        android:id="@+id/editTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:text="Edit Candidate"
+        android:text="Edit Candidate Pair"
         android:textColor="#FFFFFF"
-        android:textSize="28sp"
+        android:textSize="26sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +42,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addTitle">
+        app:layout_constraintTop_toBottomOf="@id/editTitle">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -48,34 +60,126 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Select Student"
+                    android:text="President"
                     android:textColor="#F9A825"
-                    android:textStyle="bold" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/img_edit_chairman"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:background="#FFF9C4"
+                        android:padding="2dp"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_gallery"
+                        app:shapeAppearanceOverlay="@style/CircleImage"
+                        app:strokeColor="#FDD835"
+                        app:strokeWidth="2dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_change_chairman_photo"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Change Picture"
+                        android:textColor="#F9A825"
+                        app:cornerRadius="12dp"
+                        app:strokeColor="#FDD835" />
+                </LinearLayout>
 
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="24dp"
                     android:background="@drawable/bg_spinner_sunny"
                     android:paddingHorizontal="12dp">
-
                     <Spinner
-                        android:id="@+id/spinner_student"
+                        android:id="@+id/spinner_edit_chairman"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
                 </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vice President"
+                    android:textColor="#F9A825"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/img_edit_vice"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:background="#FFF9C4"
+                        android:padding="2dp"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_gallery"
+                        app:shapeAppearanceOverlay="@style/CircleImage"
+                        app:strokeColor="#FDD835"
+                        app:strokeWidth="2dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_change_vice_photo"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Change Picture"
+                        android:textColor="#F9A825"
+                        app:cornerRadius="12dp"
+                        app:strokeColor="#FDD835" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginBottom="32dp"
+                    android:background="@drawable/bg_spinner_sunny"
+                    android:paddingHorizontal="12dp">
+                    <Spinner
+                        android:id="@+id/spinner_edit_vice"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </FrameLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#EEEEEE"
+                    android:layout_marginBottom="24dp"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:hint="Vision"
+                    android:hint="Vision Together"
+                    app:boxCornerRadiusBottomEnd="15dp"
+                    app:boxCornerRadiusBottomStart="15dp"
+                    app:boxCornerRadiusTopEnd="15dp"
+                    app:boxCornerRadiusTopStart="15dp"
                     app:boxStrokeColor="#FDD835"
                     app:startIconDrawable="@android:drawable/ic_menu_view"
                     app:startIconTint="#FBC02D">
-
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editvision"
                         android:layout_width="match_parent"
@@ -90,11 +194,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:hint="Mission"
+                    android:hint="Mission Together"
+                    app:boxCornerRadiusBottomEnd="15dp"
+                    app:boxCornerRadiusBottomStart="15dp"
+                    app:boxCornerRadiusTopEnd="15dp"
+                    app:boxCornerRadiusTopStart="15dp"
                     app:boxStrokeColor="#FDD835"
                     app:startIconDrawable="@android:drawable/ic_menu_edit"
                     app:startIconTint="#FBC02D">
-
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editmission"
                         android:layout_width="match_parent"
@@ -110,10 +217,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:hint="Period Title"
+                    app:boxCornerRadiusBottomEnd="15dp"
+                    app:boxCornerRadiusBottomStart="15dp"
+                    app:boxCornerRadiusTopEnd="15dp"
+                    app:boxCornerRadiusTopStart="15dp"
                     app:boxStrokeColor="#FDD835"
                     app:startIconDrawable="@android:drawable/ic_menu_agenda"
                     app:startIconTint="#FBC02D">
-
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editPeriodTitle"
                         android:layout_width="match_parent"
@@ -125,9 +235,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:baselineAligned="false"
                     android:orientation="horizontal">
-
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="0dp"
@@ -138,7 +246,6 @@
                         app:boxStrokeColor="#FDD835"
                         app:startIconDrawable="@android:drawable/ic_menu_day"
                         app:startIconTint="#FBC02D">
-
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/editdatestart"
                             android:layout_width="match_parent"
@@ -157,7 +264,6 @@
                         app:boxStrokeColor="#FDD835"
                         app:startIconDrawable="@android:drawable/ic_menu_day"
                         app:startIconTint="#FBC02D">
-
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/editdateend"
                             android:layout_width="match_parent"
@@ -169,12 +275,12 @@
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button"
+                    android:id="@+id/btnUpdateCandidate"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_marginTop="32dp"
                     android:backgroundTint="#FBC02D"
-                    android:text="Update Candidate"
+                    android:text="Update Candidate Pair ☀️"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"

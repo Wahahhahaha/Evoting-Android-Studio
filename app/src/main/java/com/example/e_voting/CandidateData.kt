@@ -178,6 +178,7 @@ class CandidateData : AppCompatActivity() {
                 add(
                     CandidateItem(
                         candidateId = item.optInt("candidateid"),
+                        picture = item.optString("picture"),
                         studentId = item.optInt("studentid"),
                         periodId = item.optInt("periodid"),
                         studentName = item.optString("student_name"),

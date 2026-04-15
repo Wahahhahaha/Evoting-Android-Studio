@@ -3,6 +3,7 @@ package com.example.e_voting
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
@@ -28,12 +29,14 @@ class StudentCandidateAdapter(
         private val nameText: TextView = itemView.findViewById(R.id.first)
         private val visionText: TextView = itemView.findViewById(R.id.txtVisi)
         private val missionText: TextView = itemView.findViewById(R.id.txtMisi)
+        private val candidateImage: ImageView = itemView.findViewById(R.id.imgKandidat)
         private val voteButton: MaterialButton = itemView.findViewById(R.id.btnVote)
 
         fun bind(item: CandidateItem) {
             nameText.text = "${item.studentName} • ${item.periodTitle}"
             visionText.text = item.vision
             missionText.text = item.mission
+            CandidateImageLoader.loadInto(candidateImage, item.picture)
 
             voteButton.isEnabled = !item.hasVoted
             voteButton.text = if (item.hasVoted) "SUDAH VOTE" else "VOTE"

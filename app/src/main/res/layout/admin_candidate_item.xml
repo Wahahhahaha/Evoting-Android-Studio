@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="4dp"
+    android:layout_marginHorizontal="8dp"
     android:layout_marginVertical="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="3dp">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,40 +25,128 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/txtCandidateName"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imgPresident"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="#FFF9C4"
+                    app:strokeWidth="2dp" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nama Kandidat"
-                    android:textColor="#3E2723"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_marginStart="10dp"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/txtCandidatePeriod"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Periode"
-                    android:textColor="#F9A825"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/txtPresidentName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nama Ketua"
+                        android:textColor="#3E2723"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chairman"
+                        android:textColor="#F9A825"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"/>
+                </LinearLayout>
             </LinearLayout>
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="1dp"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imgVice"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="#FFF9C4"
+                    app:strokeWidth="2dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txtViceName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nama Wakil"
+                        android:textColor="#3E2723"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vice Chairman"
+                        android:textColor="#F9A825"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:background="#F5F5F5" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtCandidatePeriod"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Period 2026/2027"
+                android:textColor="#9E9E9E"
+                android:textSize="13sp" />
 
             <ImageButton
                 android:id="@+id/btnEditCandidate"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_edit"
                 app:tint="#42A5F5" />
 
             <ImageButton
                 android:id="@+id/btnDeleteCandidate"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_marginStart="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_delete"
@@ -78,8 +166,8 @@
             android:id="@+id/txtCandidateVision"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Visi kandidat"
+            android:layout_marginTop="2dp"
+            android:text="Mewujudkan organisasi yang transparan dan inovatif."
             android:textColor="#5D4037"
             android:textSize="14sp" />
 
@@ -96,9 +184,10 @@
             android:id="@+id/txtCandidateMission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Misi kandidat"
+            android:layout_marginTop="2dp"
+            android:text="1. Meningkatkan partisipasi siswa.\n2. Mengoptimalkan platform digital."
             android:textColor="#5D4037"
             android:textSize="14sp" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
