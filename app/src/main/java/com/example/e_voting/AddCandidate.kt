@@ -97,18 +97,8 @@ class AddCandidate : AppCompatActivity() {
         saveButton.isEnabled = false
         thread {
             val result = runCatching {
-                val connection = (URL(ApiConfig.STUDENT_OPTIONS_URL).openConnection() as HttpURLConnection).apply {
-                    requestMethod = "GET"
-                    doInput = true
-                    connectTimeout = 10000
-                    readTimeout = 10000
-                }
-
-                val response = BufferedReader(connection.inputStream.reader(Charsets.UTF_8)).use {
-                    it.readText()
-                }
-                connection.disconnect()
-                parseStudentOptions(response)
+                val primary = fetchStudentOptions(ApiConfig.STUDENT_OPTIONS_URL)
+                if (primary.isNotEmpty()) primary else fetchStudentOptions(ApiConfig.STUDENT_LIST_URL)
             }
 
             runOnUiThread {
@@ -125,6 +115,20 @@ class AddCandidate : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun fetchStudentOptions(url: String): List<StudentOption> {
+        val connection = (URL(url).openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            doInput = true
+            connectTimeout = 10000
+            readTimeout = 10000
+        }
+        val response = BufferedReader(connection.inputStream.reader(Charsets.UTF_8)).use {
+            it.readText()
+        }
+        connection.disconnect()
+        return parseStudentOptions(response)
     }
 
     private fun submitCandidate() {

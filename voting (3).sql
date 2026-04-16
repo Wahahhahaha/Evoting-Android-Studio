@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 16, 2026 at 05:00 AM
+-- Generation Time: Apr 16, 2026 at 09:59 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -30,6 +30,9 @@ SET time_zone = "+00:00";
 CREATE TABLE `candidate` (
   `candidateid` int(11) NOT NULL,
   `picture` varchar(255) NOT NULL,
+  `vice_picture` varchar(255) DEFAULT NULL,
+  `president_studentid` int(11) DEFAULT NULL,
+  `vice_studentid` int(11) DEFAULT NULL,
   `studentid` int(11) NOT NULL,
   `vision` text NOT NULL,
   `mission` text NOT NULL,
@@ -40,9 +43,9 @@ CREATE TABLE `candidate` (
 -- Dumping data for table `candidate`
 --
 
-INSERT INTO `candidate` (`candidateid`, `picture`, `studentid`, `vision`, `mission`, `periodid`) VALUES
-(2, '', 2, '1. Abc\n2. Bcd', '1. Cba\n2.Dcb', 3),
-(3, 'uploads/candidate_1776153846_8649dbba.jpg', 3, 'asa', 'asa', 3);
+INSERT INTO `candidate` (`candidateid`, `picture`, `vice_picture`, `president_studentid`, `vice_studentid`, `studentid`, `vision`, `mission`, `periodid`) VALUES
+(2, '', NULL, 2, 2, 2, '1. Abc\n2. Bcd', '1. Cba\n2.Dcb', 3),
+(3, 'uploads/candidate_1776153846_8649dbba.jpg', NULL, 3, 3, 3, 'asa', 'asa', 3);
 
 -- --------------------------------------------------------
 
