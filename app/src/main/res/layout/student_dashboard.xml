@@ -91,7 +91,7 @@
         android:id="@+id/txtEmptyStateStudent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Belum ada kandidat aktif di periode saat ini."
+        android:text="No active candidates for the current period."
         android:textColor="#5D4037"
         android:textSize="14sp"
         android:visibility="gone"

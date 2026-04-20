@@ -1,14 +1,17 @@
 ﻿package com.example.e_voting
 
 import android.app.Activity
-import android.app.DatePickerDialog
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.TextInputEditText
@@ -18,8 +21,6 @@ import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.Calendar
-import java.util.Locale
 import java.util.UUID
 import kotlin.concurrent.thread
 
@@ -27,11 +28,9 @@ class AddCandidate : AppCompatActivity() {
 
     private lateinit var presidentSpinner: Spinner
     private lateinit var viceSpinner: Spinner
+    private lateinit var periodSpinner: Spinner
     private lateinit var visionInput: TextInputEditText
     private lateinit var missionInput: TextInputEditText
-    private lateinit var periodTitleInput: TextInputEditText
-    private lateinit var startDateInput: TextInputEditText
-    private lateinit var endDateInput: TextInputEditText
     private lateinit var saveButton: MaterialButton
     private lateinit var choosePresidentPictureButton: MaterialButton
     private lateinit var chooseVicePictureButton: MaterialButton
@@ -39,6 +38,10 @@ class AddCandidate : AppCompatActivity() {
     private lateinit var viceImagePreview: ShapeableImageView
 
     private val studentOptions = mutableListOf<StudentOption>()
+    private val periodOptions = mutableListOf<PeriodItem>()
+    private var studentsReady = false
+    private var periodsReady = false
+    private var selectedPeriodId = 0
     private var selectedPresidentPhotoUri: Uri? = null
     private var selectedVicePhotoUri: Uri? = null
 
@@ -64,11 +67,9 @@ class AddCandidate : AppCompatActivity() {
 
         presidentSpinner = findViewById(R.id.spinner_chairman)
         viceSpinner = findViewById(R.id.spinner_vice)
+        periodSpinner = findViewById(R.id.spinner_period)
         visionInput = findViewById(R.id.editvision)
         missionInput = findViewById(R.id.editmission)
-        periodTitleInput = findViewById(R.id.editPeriodTitle)
-        startDateInput = findViewById(R.id.editdatestart)
-        endDateInput = findViewById(R.id.editdateend)
         saveButton = findViewById(R.id.btnSaveCandidate)
         choosePresidentPictureButton = findViewById(R.id.btn_choose_chairman)
         chooseVicePictureButton = findViewById(R.id.btn_choose_vice)
@@ -83,35 +84,105 @@ class AddCandidate : AppCompatActivity() {
             viceImagePickerLauncher.launch("image/*")
         }
 
-        setupDatePicker(startDateInput)
-        setupDatePicker(endDateInput)
-
         saveButton.setOnClickListener {
             submitCandidate()
         }
 
-        loadStudentOptions()
+        saveButton.isEnabled = false
+        setupStudentSelectionListeners()
+        setupEmptyStudentSpinners("Choose student")
+        loadPeriodOptions()
     }
 
-    private fun loadStudentOptions() {
-        saveButton.isEnabled = false
+    private fun loadStudentOptions(periodId: Int) {
+        studentsReady = false
+        updateSaveButtonState()
         thread {
             val result = runCatching {
-                val primary = fetchStudentOptions(ApiConfig.STUDENT_OPTIONS_URL)
-                if (primary.isNotEmpty()) primary else fetchStudentOptions(ApiConfig.STUDENT_LIST_URL)
+                fetchStudentOptions("${ApiConfig.STUDENT_OPTIONS_URL}?periodid=$periodId")
             }
 
             runOnUiThread {
                 result.onSuccess { items ->
                     studentOptions.clear()
                     studentOptions.addAll(items)
-                    val names = studentOptions.map { it.name }
-                    val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, names)
-                    presidentSpinner.adapter = adapter
-                    viceSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, names)
-                    saveButton.isEnabled = studentOptions.size >= 2
+                    val labels = mutableListOf("Choose student").apply {
+                        addAll(studentOptions.map { it.name })
+                    }
+                    presidentSpinner.adapter = buildSpinnerAdapter(labels)
+                    viceSpinner.adapter = buildSpinnerAdapter(labels)
+                    presidentSpinner.setSelection(0, false)
+                    viceSpinner.setSelection(0, false)
+                    studentsReady = studentOptions.size >= 2
+                    if (studentOptions.isEmpty()) {
+                        setupEmptyStudentSpinners("No available students for this period")
+                    }
+                    updateSaveButtonState()
                 }.onFailure {
-                    Toast.makeText(this, "Gagal memuat siswa: ${it.message}", Toast.LENGTH_LONG).show()
+                    studentsReady = false
+                    updateSaveButtonState()
+                    Toast.makeText(this, "Failed to load students: ${it.message}", Toast.LENGTH_LONG).show()
+                    setupEmptyStudentSpinners("Failed to load students")
+                }
+            }
+        }
+    }
+
+    private fun loadPeriodOptions() {
+        periodsReady = false
+        updateSaveButtonState()
+        thread {
+            val result = runCatching {
+                val connection = (URL(ApiConfig.PERIOD_LIST_URL).openConnection() as HttpURLConnection).apply {
+                    requestMethod = "GET"
+                    doInput = true
+                    connectTimeout = 10000
+                    readTimeout = 10000
+                }
+                val response = BufferedReader(connection.inputStream.reader(Charsets.UTF_8)).use {
+                    it.readText()
+                }
+                connection.disconnect()
+                parsePeriodOptions(response)
+            }
+
+            runOnUiThread {
+                result.onSuccess { items ->
+                    periodOptions.clear()
+                    periodOptions.addAll(items)
+                    val labels = mutableListOf("Choose period").apply {
+                        addAll(periodOptions.map { "${it.title} (${it.startDate} - ${it.endDate})" })
+                    }
+                    periodSpinner.adapter = buildSpinnerAdapter(labels)
+                    periodsReady = periodOptions.isNotEmpty()
+                    periodSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                            if (position <= 0) {
+                                selectedPeriodId = 0
+                                setupEmptyStudentSpinners("Choose student")
+                                studentsReady = false
+                                updateSaveButtonState()
+                                return
+                            }
+
+                            val selected = periodOptions[position - 1]
+                            selectedPeriodId = selected.periodId
+                            loadStudentOptions(selectedPeriodId)
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            selectedPeriodId = 0
+                            setupEmptyStudentSpinners("Choose student")
+                            studentsReady = false
+                            updateSaveButtonState()
+                        }
+                    }
+                    periodSpinner.setSelection(0, false)
+                    updateSaveButtonState()
+                }.onFailure {
+                    periodsReady = false
+                    updateSaveButtonState()
+                    Toast.makeText(this, "Failed to load periods: ${it.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -132,23 +203,21 @@ class AddCandidate : AppCompatActivity() {
     }
 
     private fun submitCandidate() {
-        val selectedPresident = studentOptions.getOrNull(presidentSpinner.selectedItemPosition)
-        val selectedVice = studentOptions.getOrNull(viceSpinner.selectedItemPosition)
+        val selectedPresident = studentOptions.getOrNull(presidentSpinner.selectedItemPosition - 1)
+        val selectedVice = studentOptions.getOrNull(viceSpinner.selectedItemPosition - 1)
+        val selectedPeriod = periodOptions.firstOrNull { it.periodId == selectedPeriodId }
         val vision = visionInput.text?.toString()?.trim().orEmpty()
         val mission = missionInput.text?.toString()?.trim().orEmpty()
-        val periodTitle = periodTitleInput.text?.toString()?.trim().orEmpty()
-        val startDate = startDateInput.text?.toString()?.trim().orEmpty()
-        val endDate = endDateInput.text?.toString()?.trim().orEmpty()
         val presidentPhotoUri = selectedPresidentPhotoUri
         val vicePhotoUri = selectedVicePhotoUri
 
-        if (selectedPresident == null || selectedVice == null || vision.isBlank() || mission.isBlank() || periodTitle.isBlank() || startDate.isBlank() || endDate.isBlank() || presidentPhotoUri == null || vicePhotoUri == null) {
-            Toast.makeText(this, "Semua field wajib diisi termasuk 2 foto", Toast.LENGTH_SHORT).show()
+        if (selectedPresident == null || selectedVice == null || selectedPeriod == null || vision.isBlank() || mission.isBlank() || presidentPhotoUri == null || vicePhotoUri == null) {
+            Toast.makeText(this, "All fields are required, including period and 2 photos", Toast.LENGTH_SHORT).show()
             return
         }
 
         if (selectedPresident.studentId == selectedVice.studentId) {
-            Toast.makeText(this, "Ketua dan wakil harus berbeda", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "President and vice president must be different", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -171,11 +240,9 @@ class AddCandidate : AppCompatActivity() {
                 DataOutputStream(connection.outputStream).use { output ->
                     writeFormField(output, boundary, "presidentid", selectedPresident.studentId.toString())
                     writeFormField(output, boundary, "viceid", selectedVice.studentId.toString())
+                    writeFormField(output, boundary, "periodid", selectedPeriod.periodId.toString())
                     writeFormField(output, boundary, "vision", vision)
                     writeFormField(output, boundary, "mission", mission)
-                    writeFormField(output, boundary, "title", periodTitle)
-                    writeFormField(output, boundary, "startdate", startDate)
-                    writeFormField(output, boundary, "enddate", endDate)
                     writePhotoField(output, boundary, "photo_president", presidentPhotoUri, "president")
                     writePhotoField(output, boundary, "photo_vice", vicePhotoUri, "vice")
                     output.writeBytes("--$boundary--\r\n")
@@ -192,9 +259,9 @@ class AddCandidate : AppCompatActivity() {
             }
 
             runOnUiThread {
-                saveButton.isEnabled = true
                 choosePresidentPictureButton.isEnabled = true
                 chooseVicePictureButton.isEnabled = true
+                updateSaveButtonState()
                 result.onSuccess { response ->
                     val success = response.optBoolean("success", false)
                     Toast.makeText(this, response.optString("message"), Toast.LENGTH_SHORT).show()
@@ -203,10 +270,57 @@ class AddCandidate : AppCompatActivity() {
                         finish()
                     }
                 }.onFailure {
-                    Toast.makeText(this, "Gagal menyimpan kandidat: ${it.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Failed to save candidate: ${it.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
+    }
+
+    private fun setupEmptyStudentSpinners(message: String) {
+        val placeholder = listOf(message)
+        presidentSpinner.adapter = buildSpinnerAdapter(placeholder)
+        viceSpinner.adapter = buildSpinnerAdapter(placeholder)
+        presidentSpinner.setSelection(0, false)
+        viceSpinner.setSelection(0, false)
+    }
+
+    private fun buildSpinnerAdapter(items: List<String>): ArrayAdapter<String> {
+        return object : ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            items
+        ) {
+            override fun isEnabled(position: Int): Boolean = position != 0
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: android.view.ViewGroup): View {
+                val view = super.getDropDownView(position, convertView, parent)
+                val textView = view.findViewById<TextView>(android.R.id.text1)
+                val colorRes = if (position == 0) android.R.color.darker_gray else android.R.color.black
+                textView?.setTextColor(ContextCompat.getColor(this@AddCandidate, colorRes))
+                return view
+            }
+        }
+    }
+
+    private fun setupStudentSelectionListeners() {
+        val listener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateSaveButtonState()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                updateSaveButtonState()
+            }
+        }
+
+        presidentSpinner.onItemSelectedListener = listener
+        viceSpinner.onItemSelectedListener = listener
+    }
+
+    private fun hasValidStudentSelection(): Boolean {
+        val presidentPosition = presidentSpinner.selectedItemPosition
+        val vicePosition = viceSpinner.selectedItemPosition
+        return presidentPosition > 0 && vicePosition > 0 && presidentPosition != vicePosition
     }
 
     private fun writeFormField(output: DataOutputStream, boundary: String, key: String, value: String) {
@@ -229,7 +343,7 @@ class AddCandidate : AppCompatActivity() {
         output.writeBytes("Content-Disposition: form-data; name=\"$key\"; filename=\"$fileName\"\r\n")
         output.writeBytes("Content-Type: $mimeType\r\n\r\n")
         val inputStream = contentResolver.openInputStream(uri)
-            ?: throw IllegalArgumentException("File foto tidak bisa dibaca")
+            ?: throw IllegalArgumentException("Photo file cannot be read")
         inputStream.use { input ->
             val buffer = ByteArray(8192)
             while (true) {
@@ -241,56 +355,67 @@ class AddCandidate : AppCompatActivity() {
         output.writeBytes("\r\n")
     }
 
-    private fun setupDatePicker(input: TextInputEditText) {
-        input.setShowSoftInputOnFocus(false)
-        input.setOnClickListener {
-            showDatePicker(input)
-        }
-        input.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                showDatePicker(input)
-            }
-        }
-    }
-
-    private fun showDatePicker(targetInput: TextInputEditText) {
-        val calendar = Calendar.getInstance()
-        val existing = targetInput.text?.toString()?.trim().orEmpty()
-        val parts = existing.split("-")
-        if (parts.size == 3) {
-            val year = parts[0].toIntOrNull()
-            val month = parts[1].toIntOrNull()
-            val day = parts[2].toIntOrNull()
-            if (year != null && month != null && day != null) {
-                calendar.set(year, month - 1, day)
-            }
-        }
-
-        DatePickerDialog(
-            this,
-            { _, year, monthOfYear, dayOfMonth ->
-                val formatted = String.format(
-                    Locale.US,
-                    "%04d-%02d-%02d",
-                    year,
-                    monthOfYear + 1,
-                    dayOfMonth
-                )
-                targetInput.setText(formatted)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
-
     private fun parseStudentOptions(response: String): List<StudentOption> {
-        val array = JSONArray(response)
+        val root = extractJsonPayload(response)
+        val array = when {
+            root.startsWith("[") -> JSONArray(root)
+            root.startsWith("{") -> JSONObject(root).optJSONArray("data") ?: JSONArray()
+            else -> JSONArray()
+        }
+
+        return buildList {
+            val seenIds = mutableSetOf<Int>()
+            for (index in 0 until array.length()) {
+                val item = array.optJSONObject(index) ?: continue
+                val studentId = item.optInt("studentid", item.optInt("id", 0))
+                val name = item.optString("name", item.optString("student_name"))
+                if (studentId <= 0 || name.isBlank() || !seenIds.add(studentId)) continue
+                add(StudentOption(studentId, name))
+            }
+        }
+    }
+
+    private fun extractJsonPayload(rawResponse: String): String {
+        val response = rawResponse.removePrefix("\uFEFF").trim()
+        if (response.startsWith("{") || response.startsWith("[")) return response
+
+        val firstObject = response.indexOf('{')
+        val firstArray = response.indexOf('[')
+        val start = listOf(firstObject, firstArray).filter { it >= 0 }.minOrNull() ?: return response
+        val endObject = response.lastIndexOf('}')
+        val endArray = response.lastIndexOf(']')
+        val end = maxOf(endObject, endArray)
+        return if (end >= start) response.substring(start, end + 1).trim() else response
+    }
+
+    private fun parsePeriodOptions(response: String): List<PeriodItem> {
+        val root = response.trim()
+        val array = when {
+            root.startsWith("[") -> JSONArray(root)
+            root.startsWith("{") -> JSONObject(root).optJSONArray("data") ?: JSONArray()
+            else -> JSONArray()
+        }
+
         return buildList {
             for (index in 0 until array.length()) {
                 val item = array.optJSONObject(index) ?: continue
-                add(StudentOption(item.optInt("studentid"), item.optString("name")))
+                add(
+                    PeriodItem(
+                        periodId = item.optInt("periodid"),
+                        title = item.optString("title"),
+                        startDate = item.optString("startdate"),
+                        endDate = item.optString("enddate")
+                    )
+                )
             }
         }
+    }
+
+    private fun updateSaveButtonState() {
+        saveButton.isEnabled =
+            studentsReady &&
+                periodsReady &&
+                selectedPeriodId > 0 &&
+                hasValidStudentSelection()
     }
 }

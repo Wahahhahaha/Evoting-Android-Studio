@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         val password = passwordInput.text?.toString().orEmpty()
 
         if (username.isBlank() || password.isBlank()) {
-            Toast.makeText(this, "Username dan password wajib diisi", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Username and password are required", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
 
                 result.onSuccess { response ->
                     val success = response.optBoolean("success", false)
-                    val message = response.optString("message", "Login gagal")
+                    val message = response.optString("message", "Login failed")
 
                     if (!success) {
                         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                         else -> {
                             Toast.makeText(
                                 this,
-                                "Level user tidak dikenali",
+                                "Unknown user level",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity() {
                 }.onFailure {
                     Toast.makeText(
                         this,
-                        "Tidak bisa terhubung ke server: ${it.message}",
+                        "Cannot connect to server: ${it.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }

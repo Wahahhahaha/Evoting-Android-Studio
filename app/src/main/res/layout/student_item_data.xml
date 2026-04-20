@@ -36,7 +36,7 @@
                 android:id="@+id/txtName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nama Siswa"
+                android:text="Student Name"
                 android:textColor="#3E2723"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -45,7 +45,7 @@
                 android:id="@+id/txtClass"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Kelas XII - RPL"
+                android:text="Class XII - RPL"
                 android:textColor="#F9A825"
                 android:textSize="13sp" />
 
@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Username: siswa"
+                android:text="Username: student"
                 android:textColor="#8D6E63"
                 android:textSize="12sp" />
         </LinearLayout>

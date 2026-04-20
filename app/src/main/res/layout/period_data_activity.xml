@@ -9,72 +9,57 @@
     <View
         android:id="@+id/headerView"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
+        android:layout_height="140dp"
         android:background="@drawable/sunny_header_wave"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/titleManage"
+        android:id="@+id/titlePeriod"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="50dp"
-        android:text="Candidate\nDatabase"
+        android:layout_marginTop="45dp"
+        android:text="Voting Periods"
         android:textColor="#FFFFFF"
-        android:textSize="28sp"
+        android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:alpha="0.3"
-        android:src="@drawable/ic_sun"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="#FFFFFF" />
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCandidate"
+        android:id="@+id/rvPeriod"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
+        android:layout_marginTop="10dp"
         android:paddingBottom="88dp"
+        android:paddingHorizontal="12dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerView"
-        tools:listitem="@layout/admin_candidate_item" />
+        tools:listitem="@layout/period_item_data" />
 
     <TextView
         android:id="@+id/txtEmptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No candidate data yet"
+        android:text="No period data yet"
         android:textColor="#8D6E63"
         android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/rvCandidate"
-        app:layout_constraintEnd_toEndOf="@id/rvCandidate"
-        app:layout_constraintStart_toStartOf="@id/rvCandidate"
-        app:layout_constraintTop_toTopOf="@id/rvCandidate" />
+        app:layout_constraintBottom_toBottomOf="@id/rvPeriod"
+        app:layout_constraintEnd_toEndOf="@id/rvPeriod"
+        app:layout_constraintStart_toStartOf="@id/rvPeriod"
+        app:layout_constraintTop_toTopOf="@id/rvPeriod" />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btnAddCandidate"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAddPeriod"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
         android:backgroundTint="#FBC02D"
-        android:text="Add Candidate"
-        android:textColor="#FFFFFF"
-        app:icon="@android:drawable/ic_input_add"
-        app:iconTint="#FFFFFF"
+        android:src="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="#FFFFFF" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

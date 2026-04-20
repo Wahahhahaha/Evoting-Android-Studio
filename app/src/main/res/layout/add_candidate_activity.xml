@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -80,7 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Choose Picture"
+                        android:text="Choose Photo"
                         android:textColor="#F9A825"
                         app:cornerRadius="12dp"
                         app:strokeColor="#FDD835" />
@@ -132,7 +132,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Choose Picture"
+                        android:text="Choose Photo"
                         android:textColor="#F9A825"
                         app:cornerRadius="12dp"
                         app:strokeColor="#FDD835" />
@@ -162,10 +162,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:hint="Vision Together"
-                    app:boxCornerRadiusTopStart="15dp"
-                    app:boxCornerRadiusTopEnd="15dp"
-                    app:boxCornerRadiusBottomStart="15dp"
                     app:boxCornerRadiusBottomEnd="15dp"
+                    app:boxCornerRadiusBottomStart="15dp"
+                    app:boxCornerRadiusTopEnd="15dp"
+                    app:boxCornerRadiusTopStart="15dp"
                     app:boxStrokeColor="#FDD835"
                     app:startIconDrawable="@android:drawable/ic_menu_view"
                     app:startIconTint="#FBC02D">
@@ -184,10 +184,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:hint="Mission Together"
-                    app:boxCornerRadiusTopStart="15dp"
-                    app:boxCornerRadiusTopEnd="15dp"
-                    app:boxCornerRadiusBottomStart="15dp"
                     app:boxCornerRadiusBottomEnd="15dp"
+                    app:boxCornerRadiusBottomStart="15dp"
+                    app:boxCornerRadiusTopEnd="15dp"
+                    app:boxCornerRadiusTopStart="15dp"
                     app:boxStrokeColor="#FDD835"
                     app:startIconDrawable="@android:drawable/ic_menu_edit"
                     app:startIconTint="#FBC02D">
@@ -200,74 +200,33 @@
                         android:paddingStart="48dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Period Title (e.g. 2026/2027)"
-                    app:boxCornerRadiusTopStart="15dp"
-                    app:boxCornerRadiusTopEnd="15dp"
-                    app:boxCornerRadiusBottomStart="15dp"
-                    app:boxCornerRadiusBottomEnd="15dp"
-                    app:boxStrokeColor="#FDD835"
-                    app:startIconDrawable="@android:drawable/ic_menu_agenda"
-                    app:startIconTint="#FBC02D">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editPeriodTitle"
+                    android:layout_marginBottom="8dp"
+                    android:text="Select Voting Period"
+                    android:textColor="#F9A825"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/bg_spinner_sunny"
+                    android:paddingHorizontal="12dp">
+                    <Spinner
+                        android:id="@+id/spinner_period"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:paddingStart="48dp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:hint="Start Date"
-                        app:boxStrokeColor="#FDD835"
-                        app:startIconDrawable="@android:drawable/ic_menu_day"
-                        app:startIconTint="#FBC02D">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editdatestart"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="date"
-                            android:paddingStart="48dp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="End Date"
-                        app:boxStrokeColor="#FDD835"
-                        app:startIconDrawable="@android:drawable/ic_menu_day"
-                        app:startIconTint="#FBC02D">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editdateend"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="date"
-                            android:paddingStart="48dp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
+                        android:layout_height="match_parent" />
+                </FrameLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSaveCandidate"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="20dp"
                     android:backgroundTint="#FBC02D"
-                    android:text="Save Candidate Pair ☀️"
+                    android:text="Save Candidate Pair"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"

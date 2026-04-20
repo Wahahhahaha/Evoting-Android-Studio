@@ -34,7 +34,7 @@ if ($result && mysqli_num_rows($result) > 0) {
         // Di SQL kamu, kolomnya adalah 'levelid'
         $response['level'] = (int)$row['levelid'];
         $response['userid'] = (int)$row['userid'];
-        $response['message'] = "Login berhasil";
+        $response['message'] = "Login successful";
 
         if ((int)$row['levelid'] === 2) {
             $studentQuery = $conn->prepare('SELECT studentid, name FROM student WHERE userid = ? LIMIT 1');
@@ -54,7 +54,7 @@ if ($result && mysqli_num_rows($result) > 0) {
     }
 } else {
     $response['success'] = false;
-    $response['message'] = "Username tidak ditemukan";
+    $response['message'] = "Username not found";
 }
 
 echo json_encode($response);

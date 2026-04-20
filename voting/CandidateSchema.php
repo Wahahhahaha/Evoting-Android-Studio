@@ -40,7 +40,7 @@ function ensureCandidateSchema(mysqli $conn): void
         return;
     }
 
-    $conn->query('UPDATE candidate SET president_studentid = studentid WHERE president_studentid IS NULL AND studentid IS NOT NULL');
-    $conn->query('UPDATE candidate SET vice_studentid = studentid WHERE vice_studentid IS NULL AND studentid IS NOT NULL');
+    $conn->query('UPDATE candidate SET president_studentid = studentid WHERE (president_studentid IS NULL OR president_studentid = 0) AND studentid IS NOT NULL');
+    $conn->query('UPDATE candidate SET vice_studentid = studentid WHERE (vice_studentid IS NULL OR vice_studentid = 0) AND studentid IS NOT NULL');
 }
 

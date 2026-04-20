@@ -8,7 +8,7 @@ ensureCandidateSchema($conn);
 function saveCandidatePhoto(array $file, string $prefix): array
 {
     if (!isset($file['tmp_name']) || (int)($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        return [false, '', 'Foto kandidat wajib dipilih'];
+        return [false, '', 'Candidate photo is required'];
     }
 
     $tmpPath = $file['tmp_name'];
@@ -21,54 +21,54 @@ function saveCandidatePhoto(array $file, string $prefix): array
     ];
 
     if (!isset($allowedMime[$mimeType])) {
-        return [false, '', 'Format foto harus JPG, PNG, atau WEBP'];
+        return [false, '', 'Photo format must be JPG, PNG, or WEBP'];
     }
 
     $uploadDir = __DIR__ . '/uploads/';
     if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
-        return [false, '', 'Folder upload tidak tersedia'];
+        return [false, '', 'Upload folder is unavailable'];
     }
 
     $fileName = $prefix . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $allowedMime[$mimeType];
     $targetPath = $uploadDir . $fileName;
     if (!move_uploaded_file($tmpPath, $targetPath)) {
-        return [false, '', 'Gagal menyimpan file foto'];
+        return [false, '', 'Failed to save photo file'];
     }
 
     return [true, 'uploads/' . $fileName, ''];
 }
 
-$response = ['success' => false, 'message' => 'Request tidak valid'];
+$response = ['success' => false, 'message' => 'Invalid request'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $presidentId = (int)($_POST['presidentid'] ?? $_POST['studentid'] ?? 0);
     $viceId = (int)($_POST['viceid'] ?? 0);
+    $periodid = (int)($_POST['periodid'] ?? 0);
     $vision = trim($_POST['vision'] ?? '');
     $mission = trim($_POST['mission'] ?? '');
-    $title = trim($_POST['title'] ?? '');
-    $startdate = trim($_POST['startdate'] ?? '');
-    $enddate = trim($_POST['enddate'] ?? '');
 
     if ($viceId <= 0) {
         $viceId = $presidentId;
     }
 
-    if ($presidentId <= 0 || $viceId <= 0 || $vision === '' || $mission === '' || $title === '' || $startdate === '' || $enddate === '') {
-        $response['message'] = 'Semua field wajib diisi';
+    if ($presidentId <= 0 || $viceId <= 0 || $periodid <= 0 || $vision === '' || $mission === '') {
+        $response['message'] = 'All fields are required';
         echo json_encode($response);
         exit;
     }
 
     if ($presidentId === $viceId) {
-        $response['message'] = 'Ketua dan wakil harus siswa yang berbeda';
+        $response['message'] = 'President and vice president must be different students';
         echo json_encode($response);
         exit;
     }
 
-    $startTs = strtotime($startdate);
-    $endTs = strtotime($enddate);
-    if (!$startTs || !$endTs || $startTs > $endTs) {
-        $response['message'] = 'Tanggal periode tidak valid';
+    $periodCheck = $conn->prepare('SELECT periodid FROM voting_period WHERE periodid = ? LIMIT 1');
+    $periodCheck->bind_param('i', $periodid);
+    $periodCheck->execute();
+    $periodCheck->store_result();
+    if ($periodCheck->num_rows === 0) {
+        $response['message'] = 'Voting period not found';
         echo json_encode($response);
         exit;
     }
@@ -78,22 +78,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $studentCheck->execute();
     $studentTotal = (int)($studentCheck->get_result()->fetch_assoc()['total'] ?? 0);
     if ($studentTotal < 2) {
-        $response['message'] = 'Data ketua/wakil tidak ditemukan';
+        $response['message'] = 'President/vice data not found';
         echo json_encode($response);
         exit;
     }
 
     $checkUsed = $conn->prepare(
         'SELECT candidateid FROM candidate
-         WHERE COALESCE(president_studentid, studentid) IN (?, ?)
-            OR COALESCE(vice_studentid, studentid) IN (?, ?)
+         WHERE periodid = ?
+           AND (
+                COALESCE(NULLIF(president_studentid, 0), studentid) IN (?, ?)
+                OR COALESCE(NULLIF(vice_studentid, 0), studentid) IN (?, ?)
+           )
          LIMIT 1'
     );
-    $checkUsed->bind_param('iiii', $presidentId, $viceId, $presidentId, $viceId);
+    $checkUsed->bind_param('iiiii', $periodid, $presidentId, $viceId, $presidentId, $viceId);
     $checkUsed->execute();
     $checkUsed->store_result();
     if ($checkUsed->num_rows > 0) {
-        $response['message'] = 'Ketua atau wakil sudah terdaftar di pasangan lain';
+        $response['message'] = 'President or vice is already used in this period';
         echo json_encode($response);
         exit;
     }
@@ -101,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $presidentFile = $_FILES['photo_president'] ?? $_FILES['photo'] ?? null;
     $viceFile = $_FILES['photo_vice'] ?? $_FILES['photo'] ?? null;
     if (!$presidentFile || !$viceFile) {
-        $response['message'] = 'Foto ketua dan wakil wajib dipilih';
+        $response['message'] = 'President and vice photos are required';
         echo json_encode($response);
         exit;
     }
@@ -123,23 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $conn->begin_transaction();
-
     try {
-        $periodid = 0;
-        $findPeriod = $conn->prepare('SELECT periodid FROM voting_period WHERE title = ? AND startdate = ? AND enddate = ? LIMIT 1');
-        $findPeriod->bind_param('sss', $title, $startdate, $enddate);
-        $findPeriod->execute();
-        $period = $findPeriod->get_result()->fetch_assoc();
-        if ($period) {
-            $periodid = (int)$period['periodid'];
-        } else {
-            $insertPeriod = $conn->prepare('INSERT INTO voting_period (title, startdate, enddate) VALUES (?, ?, ?)');
-            $insertPeriod->bind_param('sss', $title, $startdate, $enddate);
-            $insertPeriod->execute();
-            $periodid = (int)$conn->insert_id;
-        }
-
         $insertCandidate = $conn->prepare(
             'INSERT INTO candidate (picture, vice_picture, studentid, president_studentid, vice_studentid, vision, mission, periodid)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
@@ -157,19 +144,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         $insertCandidate->execute();
 
-        $conn->commit();
-        $response = ['success' => true, 'message' => 'Pasangan kandidat berhasil ditambahkan'];
+        $response = ['success' => true, 'message' => 'Candidate pair added successfully'];
     } catch (Throwable $e) {
-        $conn->rollback();
         if ($presidentPicture !== '' && file_exists(__DIR__ . '/' . $presidentPicture)) {
             @unlink(__DIR__ . '/' . $presidentPicture);
         }
         if ($vicePicture !== '' && file_exists(__DIR__ . '/' . $vicePicture)) {
             @unlink(__DIR__ . '/' . $vicePicture);
         }
-        $response['message'] = 'Gagal menyimpan kandidat: ' . $e->getMessage();
+        $response['message'] = 'Failed to save candidate: ' . $e->getMessage();
     }
 }
 
 echo json_encode($response);
-
+?>

@@ -2,7 +2,7 @@
 header('Content-Type: application/json; charset=utf-8');
 include 'Koneksi.php';
 
-$response = ['success' => false, 'message' => 'ID siswa tidak valid'];
+$response = ['success' => false, 'message' => 'Invalid student ID'];
 $studentid = (int)($_POST['studentid'] ?? 0);
 
 if ($studentid > 0) {
@@ -26,13 +26,13 @@ if ($studentid > 0) {
             $deleteUser->execute();
 
             $conn->commit();
-            $response = ['success' => true, 'status' => 1, 'message' => 'Data siswa berhasil dihapus'];
+            $response = ['success' => true, 'status' => 1, 'message' => 'Student data deleted successfully'];
         } catch (Throwable $e) {
             $conn->rollback();
-            $response['message'] = 'Gagal menghapus data: ' . $e->getMessage();
+            $response['message'] = 'Failed to delete data: ' . $e->getMessage();
         }
     } else {
-        $response['message'] = 'Data siswa tidak ditemukan';
+        $response['message'] = 'Student data not found';
     }
 }
 

@@ -21,7 +21,6 @@ class EditStudent : AppCompatActivity() {
 
     private lateinit var usernameInput: TextInputEditText
     private lateinit var nameInput: TextInputEditText
-    private lateinit var passwordInput: TextInputEditText
     private lateinit var classSpinner: Spinner
     private lateinit var saveButton: Button
 
@@ -40,9 +39,8 @@ class EditStudent : AppCompatActivity() {
 
         usernameInput = findViewById(R.id.usn)
         nameInput = findViewById(R.id.name)
-        passwordInput = findViewById(R.id.password)
         classSpinner = findViewById(R.id.cls)
-        saveButton = findViewById(R.id.btnSave)
+        saveButton = findViewById(R.id.btnUpdate)
 
         usernameInput.setText(intent.getStringExtra(EXTRA_USERNAME).orEmpty())
         nameInput.setText(intent.getStringExtra(EXTRA_NAME).orEmpty())
@@ -91,7 +89,7 @@ class EditStudent : AppCompatActivity() {
                 }.onFailure {
                     Toast.makeText(
                         this,
-                        "Gagal memuat kelas: ${it.message}",
+                        "Failed to load classes: ${it.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -102,11 +100,10 @@ class EditStudent : AppCompatActivity() {
     private fun updateStudent() {
         val username = usernameInput.text?.toString()?.trim().orEmpty()
         val name = nameInput.text?.toString()?.trim().orEmpty()
-        val password = passwordInput.text?.toString().orEmpty()
         val selectedClass = classItems.getOrNull(classSpinner.selectedItemPosition)
 
         if (studentId <= 0 || userId <= 0 || username.isBlank() || name.isBlank() || selectedClass == null) {
-            Toast.makeText(this, "Data siswa tidak lengkap", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Incomplete student data", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -136,7 +133,7 @@ class EditStudent : AppCompatActivity() {
                     append("&name=")
                     append(URLEncoder.encode(name, "UTF-8"))
                     append("&password=")
-                    append(URLEncoder.encode(password, "UTF-8"))
+                    append(URLEncoder.encode(username, "UTF-8"))
                     append("&classid=")
                     append(URLEncoder.encode(selectedClass.classId.toString(), "UTF-8"))
                 }
@@ -165,7 +162,7 @@ class EditStudent : AppCompatActivity() {
                     val success = response.optBoolean("success", false)
                     Toast.makeText(
                         this,
-                        response.optString("message", if (success) "Berhasil" else "Gagal"),
+                        response.optString("message", if (success) "Success" else "Failed"),
                         Toast.LENGTH_SHORT
                     ).show()
                     if (success) {
@@ -175,7 +172,7 @@ class EditStudent : AppCompatActivity() {
                 }.onFailure {
                     Toast.makeText(
                         this,
-                        "Gagal memperbarui siswa: ${it.message}",
+                        "Failed to update student: ${it.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }

@@ -52,13 +52,12 @@
             android:layout_height="wrap_content"
             android:alignmentMode="alignMargins"
             android:columnCount="2"
-            android:padding="16dp"
-            android:rowCount="1">
+            android:padding="16dp">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardManageCandidate"
                 android:layout_width="0dp"
-                android:layout_height="160dp"
+                android:layout_height="150dp"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_margin="8dp"
@@ -69,37 +68,31 @@
                 app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:id="@+id/managecandidate_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="vertical">
-
                     <ImageView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
                         android:src="@android:drawable/ic_menu_edit"
                         app:tint="#FBC02D" />
-
-                    <Button
-                        android:id="@+id/managecandidate"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="Manage\nCandidate"
                         android:textAlignment="center"
                         android:textColor="#5D4037"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-
-                
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardManageUser"
                 android:layout_width="0dp"
-                android:layout_height="160dp"
+                android:layout_height="150dp"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_margin="8dp"
@@ -110,24 +103,92 @@
                 app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:id="@+id/manageuser_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        app:tint="#FBC02D" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Manage\nUser"
+                        android:textAlignment="center"
+                        android:textColor="#5D4037"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardManagePeriod"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="20dp"
+                app:strokeColor="#FFF9C4"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        app:tint="#FBC02D" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Voting\nPeriod"
+                        android:textAlignment="center"
+                        android:textColor="#5D4037"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardVotingResult"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="20dp"
+                app:strokeColor="#FFF9C4"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="vertical">
 
                     <ImageView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@android:drawable/ic_menu_sort_by_size"
                         app:tint="#FBC02D" />
 
-                    <Button
-                        android:id="@+id/manageuser"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Manage\nUser"
+                        android:layout_marginTop="8dp"
+                        android:text="Voting\nResult"
                         android:textAlignment="center"
                         android:textColor="#5D4037"
                         android:textSize="14sp"
@@ -146,7 +207,7 @@
         android:layout_marginBottom="40dp"
         android:backgroundTint="#F44336"
         android:paddingHorizontal="32dp"
-        android:text="Logout Admin"
+        android:text="Logout"
         android:textAllCaps="false"
         app:cornerRadius="28dp"
         app:icon="@android:drawable/ic_lock_power_off"

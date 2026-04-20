@@ -23,6 +23,7 @@ class StudentDashboard : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StudentCandidateAdapter
     private val candidates = mutableListOf<CandidateItem>()
+    private var userId: Int = -1
     private var studentId: Int = -1
     private var studentName: String = ""
 
@@ -30,6 +31,7 @@ class StudentDashboard : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.student_dashboard)
 
+        userId = intent.getIntExtra("userid", -1)
         studentId = intent.getIntExtra("studentid", -1)
         studentName = intent.getStringExtra("name").orEmpty()
 
@@ -81,19 +83,19 @@ class StudentDashboard : AppCompatActivity() {
                     adapter.notifyDataSetChanged()
 
                     val statusText = when {
-                        items.isEmpty() -> "Belum ada voting aktif atau hasil periode yang sudah selesai."
-                        items.first().displayMode == "result" -> "Hasil pemilihan sudah tersedia."
-                        items.any { it.hasVoted } -> "Vote kamu sudah tersimpan."
-                        else -> "Pilih pasangan kandidat untuk vote."
+                        items.isEmpty() -> "No active voting or finished period results yet."
+                        items.first().displayMode == "result" -> "Election results are now available."
+                        items.any { it.hasVoted } -> "Your vote has been saved."
+                        else -> "Choose a candidate pair to vote."
                     }
                     findViewById<TextView>(R.id.txtStatusMessage).text = statusText
 
                     findViewById<TextView>(R.id.txtEmptyStateStudent).text =
-                        "Belum ada voting aktif atau hasil pemilihan."
+                        "No active voting or election results available."
                     findViewById<View>(R.id.txtEmptyStateStudent).visibility =
                         if (items.isEmpty()) View.VISIBLE else View.GONE
                 }.onFailure {
-                    Toast.makeText(this, "Gagal memuat kandidat: ${it.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Failed to load candidates: ${it.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -101,16 +103,21 @@ class StudentDashboard : AppCompatActivity() {
 
     private fun confirmVote(candidate: CandidateItem) {
         AlertDialog.Builder(this)
-            .setTitle("Konfirmasi vote")
-            .setMessage("Vote pasangan ${candidate.presidentName} & ${candidate.viceName} untuk periode ${candidate.periodTitle}? Kamu hanya bisa vote 1 kali di periode ini.")
+            .setTitle("Vote Confirmation")
+            .setMessage("Vote for ${candidate.presidentName} & ${candidate.viceName} in period ${candidate.periodTitle}? You can only vote once in this period.")
             .setPositiveButton("Vote") { _, _ ->
                 submitVote(candidate)
             }
-            .setNegativeButton("Batal", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
     private fun submitVote(candidate: CandidateItem) {
+        if (candidate.candidateId <= 0) {
+            Toast.makeText(this, "Invalid candidate data", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         setLoading(true)
         thread {
             val result = runCatching {
@@ -129,6 +136,8 @@ class StudentDashboard : AppCompatActivity() {
                 val payload = buildString {
                     append("studentid=")
                     append(URLEncoder.encode(studentId.toString(), "UTF-8"))
+                    append("&userid=")
+                    append(URLEncoder.encode(userId.toString(), "UTF-8"))
                     append("&candidateid=")
                     append(URLEncoder.encode(candidate.candidateId.toString(), "UTF-8"))
                 }
@@ -154,10 +163,10 @@ class StudentDashboard : AppCompatActivity() {
             runOnUiThread {
                 setLoading(false)
                 result.onSuccess { response ->
-                    Toast.makeText(this, response.optString("message", "Proses vote selesai"), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, response.optString("message", "Vote process completed"), Toast.LENGTH_SHORT).show()
                     loadCandidates()
                 }.onFailure {
-                    Toast.makeText(this, "Gagal mengirim vote: ${it.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Failed to submit vote: ${it.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }

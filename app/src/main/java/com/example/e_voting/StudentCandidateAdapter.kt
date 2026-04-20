@@ -85,8 +85,8 @@ class StudentCandidateAdapter(
 
                 voteButton.isEnabled = !item.hasVoted
                 voteButton.text = when {
-                    item.isVotedCandidate -> "Kamu pilih ini"
-                    item.hasVoted -> "Sudah vote"
+                    item.isVotedCandidate -> "Your Choice"
+                    item.hasVoted -> "Voted"
                     else -> "Vote"
                 }
 

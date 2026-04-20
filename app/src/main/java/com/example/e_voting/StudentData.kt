@@ -98,7 +98,7 @@ class StudentData : AppCompatActivity() {
                 }.onFailure {
                     Toast.makeText(
                         this,
-                        "Gagal memuat data siswa: ${it.message}",
+                        "Failed to load students: ${it.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -108,12 +108,12 @@ class StudentData : AppCompatActivity() {
 
     private fun confirmDelete(student: StudentItem) {
         AlertDialog.Builder(this)
-            .setTitle("Hapus siswa")
-            .setMessage("Hapus ${student.name} dari daftar siswa?")
-            .setPositiveButton("Hapus") { _, _ ->
+            .setTitle("Delete Student")
+            .setMessage("Delete ${student.name} from student list?")
+            .setPositiveButton("Delete") { _, _ ->
                 deleteStudent(student)
             }
-            .setNegativeButton("Batal", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -162,7 +162,7 @@ class StudentData : AppCompatActivity() {
                     val success = response.optBoolean("success", response.optInt("status") == 1)
                     Toast.makeText(
                         this,
-                        response.optString("message", if (success) "Berhasil" else "Gagal"),
+                        response.optString("message", if (success) "Success" else "Failed"),
                         Toast.LENGTH_SHORT
                     ).show()
                     if (success) {
@@ -171,7 +171,7 @@ class StudentData : AppCompatActivity() {
                 }.onFailure {
                     Toast.makeText(
                         this,
-                        "Gagal menghapus siswa: ${it.message}",
+                        "Failed to delete student: ${it.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }

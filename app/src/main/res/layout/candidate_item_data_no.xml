@@ -37,7 +37,7 @@
                 android:id="@+id/txtCandidateName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nama Kandidat"
+                android:text="Candidate Name"
                 android:textColor="#3E2723"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Visi: Menciptakan sekolah yang ceria..."
+                android:text="Vision: Building a cheerful school..."
                 android:textColor="#FBC02D"
                 android:textSize="13sp" />
         </LinearLayout>

@@ -5,14 +5,26 @@ include 'CandidateSchema.php';
 
 ensureCandidateSchema($conn);
 
-$response = ['success' => false, 'message' => 'Request tidak valid'];
+$response = ['success' => false, 'message' => 'Invalid request'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $studentid = (int)($_POST['studentid'] ?? 0);
+    $userid = (int)($_POST['userid'] ?? 0);
     $candidateid = (int)($_POST['candidateid'] ?? 0);
 
+    if ($studentid <= 0 && $userid > 0) {
+        $findStudent = $conn->prepare('SELECT studentid FROM student WHERE userid = ? LIMIT 1');
+        $findStudent->bind_param('i', $userid);
+        $findStudent->execute();
+        $studentResult = $findStudent->get_result();
+        $student = $studentResult ? $studentResult->fetch_assoc() : null;
+        if ($student) {
+            $studentid = (int)$student['studentid'];
+        }
+    }
+
     if ($studentid <= 0 || $candidateid <= 0) {
-        $response['message'] = 'Student dan kandidat wajib dipilih';
+        $response['message'] = 'Student and candidate are required';
         echo json_encode($response);
         exit;
     }
@@ -23,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkStudent->store_result();
 
     if ($checkStudent->num_rows === 0) {
-        $response['message'] = 'Siswa tidak ditemukan';
+        $response['message'] = 'Student not found';
         echo json_encode($response);
         exit;
     }
@@ -43,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $candidate = $candidateResult ? $candidateResult->fetch_assoc() : null;
 
     if (!$candidate) {
-        $response['message'] = 'Kandidat tidak aktif atau tidak ditemukan';
+        $response['message'] = 'Candidate is not active or not found';
         echo json_encode($response);
         exit;
     }
@@ -56,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkVote->store_result();
 
     if ($checkVote->num_rows > 0) {
-        $response['message'] = 'Kamu sudah vote di periode ini';
+        $response['message'] = 'You already voted in this period';
         $response['periodid'] = $periodid;
         echo json_encode($response);
         exit;
@@ -68,11 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($insertVote->execute()) {
         $response = [
             'success' => true,
-            'message' => 'Vote untuk pasangan ' . $candidate['president_name'] . ' & ' . $candidate['vice_name'] . ' berhasil disimpan',
+            'message' => 'Vote for pair ' . $candidate['president_name'] . ' & ' . $candidate['vice_name'] . ' has been saved successfully',
             'periodid' => $periodid
         ];
     } else {
-        $response['message'] = 'Gagal menyimpan vote';
+        $response['message'] = 'Failed to save vote';
     }
 }
 

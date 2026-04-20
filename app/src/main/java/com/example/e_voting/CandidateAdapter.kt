@@ -40,13 +40,25 @@ class CandidateAdapter(
         fun bind(item: CandidateItem) {
             presidentNameText.text = item.presidentName
             viceNameText.text = item.viceName
-            periodText.text = "${item.periodTitle} • ${item.startDate} s/d ${item.endDate}"
+            periodText.text = buildPeriodLabel(item)
             visionText.text = item.vision
             missionText.text = item.mission
             CandidateImageLoader.loadInto(presidentImage, item.presidentPicture)
             CandidateImageLoader.loadInto(viceImage, item.vicePicture)
             editButton.setOnClickListener { onEdit(item) }
             deleteButton.setOnClickListener { onDelete(item) }
+        }
+
+        private fun buildPeriodLabel(item: CandidateItem): String {
+            val title = item.periodTitle.ifBlank { "Period not available" }
+            val hasStart = item.startDate.isNotBlank()
+            val hasEnd = item.endDate.isNotBlank()
+            return when {
+                hasStart && hasEnd -> "$title • ${item.startDate} to ${item.endDate}"
+                hasStart -> "$title • Starts ${item.startDate}"
+                hasEnd -> "$title • Ends ${item.endDate}"
+                else -> title
+            }
         }
     }
 }

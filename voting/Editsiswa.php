@@ -2,18 +2,21 @@
 header('Content-Type: application/json; charset=utf-8');
 include 'Koneksi.php';
 
-$response = ['success' => false, 'message' => 'Request tidak valid'];
+$response = ['success' => false, 'message' => 'Invalid request'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $studentid = (int)($_POST['studentid'] ?? 0);
     $userid = (int)($_POST['userid'] ?? 0);
     $name = trim($_POST['name'] ?? '');
     $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $password = trim((string)($_POST['password'] ?? ''));
+    if ($password === '') {
+        $password = $username;
+    }
     $classid = (int)($_POST['classid'] ?? 0);
 
     if ($studentid <= 0 || $userid <= 0 || $name === '' || $username === '' || $classid <= 0) {
-        $response['message'] = 'Data tidak lengkap';
+        $response['message'] = 'Incomplete data';
         echo json_encode($response);
         exit;
     }
@@ -24,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkUser->store_result();
 
     if ($checkUser->num_rows > 0) {
-        $response['message'] = 'Username sudah dipakai';
+        $response['message'] = 'Username is already taken';
         echo json_encode($response);
         exit;
     }
@@ -32,14 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
-        if ($password !== '') {
-            $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-            $updateUser = $conn->prepare('UPDATE users SET username = ?, password = ? WHERE userid = ?');
-            $updateUser->bind_param('ssi', $username, $passwordHash, $userid);
-        } else {
-            $updateUser = $conn->prepare('UPDATE users SET username = ? WHERE userid = ?');
-            $updateUser->bind_param('si', $username, $userid);
-        }
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+        $updateUser = $conn->prepare('UPDATE users SET username = ?, password = ? WHERE userid = ?');
+        $updateUser->bind_param('ssi', $username, $passwordHash, $userid);
         $updateUser->execute();
 
         $updateStudent = $conn->prepare('UPDATE student SET name = ?, classid = ? WHERE studentid = ? AND userid = ?');
@@ -47,10 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $updateStudent->execute();
 
         $conn->commit();
-        $response = ['success' => true, 'message' => 'Data siswa berhasil diperbarui'];
+        $response = ['success' => true, 'message' => 'Student data updated successfully'];
     } catch (Throwable $e) {
         $conn->rollback();
-        $response['message'] = 'Gagal memperbarui data: ' . $e->getMessage();
+        $response['message'] = 'Failed to update data: ' . $e->getMessage();
     }
 }
 

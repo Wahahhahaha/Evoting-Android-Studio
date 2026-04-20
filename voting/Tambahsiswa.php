@@ -2,16 +2,19 @@
 header('Content-Type: application/json; charset=utf-8');
 include 'Koneksi.php';
 
-$response = ['success' => false, 'message' => 'Request tidak valid'];
+$response = ['success' => false, 'message' => 'Invalid request'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $password = trim((string)($_POST['password'] ?? ''));
+    if ($password === '') {
+        $password = $username;
+    }
     $classid = (int)($_POST['classid'] ?? 0);
 
-    if ($name === '' || $username === '' || $password === '' || $classid <= 0) {
-        $response['message'] = 'Nama, username, password, dan kelas wajib diisi';
+    if ($name === '' || $username === '' || $classid <= 0) {
+        $response['message'] = 'Name, username, and class are required';
         echo json_encode($response);
         exit;
     }
@@ -22,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkUser->store_result();
 
     if ($checkUser->num_rows > 0) {
-        $response['message'] = 'Username sudah dipakai';
+        $response['message'] = 'Username is already taken';
         echo json_encode($response);
         exit;
     }
@@ -33,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkClass->store_result();
 
     if ($checkClass->num_rows === 0) {
-        $response['message'] = 'Kelas tidak ditemukan';
+        $response['message'] = 'Class not found';
         echo json_encode($response);
         exit;
     }
@@ -54,10 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $insertStudent->execute();
 
         $conn->commit();
-        $response = ['success' => true, 'message' => 'Data siswa berhasil ditambahkan'];
+        $response = ['success' => true, 'message' => 'Student data added successfully'];
     } catch (Throwable $e) {
         $conn->rollback();
-        $response['message'] = 'Gagal menyimpan data: ' . $e->getMessage();
+        $response['message'] = 'Failed to save data: ' . $e->getMessage();
     }
 }
 

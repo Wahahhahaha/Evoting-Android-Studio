@@ -5,7 +5,7 @@ include 'CandidateSchema.php';
 
 ensureCandidateSchema($conn);
 
-$response = ['success' => false, 'message' => 'ID kandidat tidak valid'];
+$response = ['success' => false, 'message' => 'Invalid candidate ID'];
 $candidateid = (int)($_POST['candidateid'] ?? 0);
 
 if ($candidateid > 0) {
@@ -36,13 +36,13 @@ if ($candidateid > 0) {
             }
 
             $conn->commit();
-            $response = ['success' => true, 'status' => 1, 'message' => 'Kandidat berhasil dihapus'];
+            $response = ['success' => true, 'status' => 1, 'message' => 'Candidate deleted successfully'];
         } catch (Throwable $e) {
             $conn->rollback();
-            $response['message'] = 'Gagal menghapus kandidat: ' . $e->getMessage();
+            $response['message'] = 'Failed to delete candidate: ' . $e->getMessage();
         }
     } else {
-        $response['message'] = 'Data kandidat tidak ditemukan';
+        $response['message'] = 'Candidate data not found';
     }
 }
 

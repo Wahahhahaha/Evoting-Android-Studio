@@ -1,4 +1,4 @@
-﻿package com.example.e_voting
+package com.example.e_voting
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -10,7 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -20,65 +20,58 @@ import java.net.URL
 import java.net.URLEncoder
 import kotlin.concurrent.thread
 
-class CandidateData : AppCompatActivity() {
+class PeriodData : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: CandidateAdapter
-    private val candidates = mutableListOf<CandidateItem>()
+    private lateinit var adapter: PeriodAdapter
+    private val periods = mutableListOf<PeriodItem>()
 
     private val formLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                loadCandidates()
+                loadPeriods()
             }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.candidate_data_activity)
+        setContentView(R.layout.period_data_activity)
 
-        recyclerView = findViewById(R.id.rvCandidate)
-        adapter = CandidateAdapter(
-            items = candidates,
-            onEdit = { candidate ->
-                val intent = Intent(this, EditCandidate::class.java).apply {
-                    putExtra(EditCandidate.EXTRA_CANDIDATE_ID, candidate.candidateId)
-                    putExtra(EditCandidate.EXTRA_PERIOD_ID, candidate.periodId)
-                    putExtra(EditCandidate.EXTRA_PRESIDENT_ID, candidate.presidentStudentId)
-                    putExtra(EditCandidate.EXTRA_VICE_ID, candidate.viceStudentId)
-                    putExtra(EditCandidate.EXTRA_PRESIDENT_PICTURE, candidate.presidentPicture)
-                    putExtra(EditCandidate.EXTRA_VICE_PICTURE, candidate.vicePicture)
-                    putExtra(EditCandidate.EXTRA_VISION, candidate.vision)
-                    putExtra(EditCandidate.EXTRA_MISSION, candidate.mission)
-                    putExtra(EditCandidate.EXTRA_PERIOD_TITLE, candidate.periodTitle)
-                    putExtra(EditCandidate.EXTRA_START_DATE, candidate.startDate)
-                    putExtra(EditCandidate.EXTRA_END_DATE, candidate.endDate)
+        recyclerView = findViewById(R.id.rvPeriod)
+        adapter = PeriodAdapter(
+            items = periods,
+            onEdit = { period ->
+                val intent = Intent(this, EditPeriod::class.java).apply {
+                    putExtra(EditPeriod.EXTRA_PERIOD_ID, period.periodId)
+                    putExtra(EditPeriod.EXTRA_TITLE, period.title)
+                    putExtra(EditPeriod.EXTRA_START_DATE, period.startDate)
+                    putExtra(EditPeriod.EXTRA_END_DATE, period.endDate)
                 }
                 formLauncher.launch(intent)
             },
-            onDelete = { candidate ->
-                confirmDelete(candidate)
+            onDelete = { period ->
+                confirmDelete(period)
             }
         )
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        findViewById<ExtendedFloatingActionButton>(R.id.btnAddCandidate).setOnClickListener {
-            formLauncher.launch(Intent(this, AddCandidate::class.java))
+        findViewById<FloatingActionButton>(R.id.btnAddPeriod).setOnClickListener {
+            formLauncher.launch(Intent(this, AddPeriod::class.java))
         }
     }
 
     override fun onResume() {
         super.onResume()
-        loadCandidates()
+        loadPeriods()
     }
 
-    private fun loadCandidates() {
+    private fun loadPeriods() {
         setLoading(true)
         thread {
             val result = runCatching {
-                val connection = (URL(ApiConfig.CANDIDATE_LIST_URL).openConnection() as HttpURLConnection).apply {
+                val connection = (URL(ApiConfig.PERIOD_LIST_URL).openConnection() as HttpURLConnection).apply {
                     requestMethod = "GET"
                     doInput = true
                     connectTimeout = 10000
@@ -89,40 +82,40 @@ class CandidateData : AppCompatActivity() {
                     it.readText()
                 }
                 connection.disconnect()
-                parseCandidateResponse(response)
+                parsePeriodResponse(response)
             }
 
             runOnUiThread {
                 setLoading(false)
                 result.onSuccess { items ->
-                    candidates.clear()
-                    candidates.addAll(items)
+                    periods.clear()
+                    periods.addAll(items)
                     adapter.notifyDataSetChanged()
                     findViewById<View>(R.id.txtEmptyState).visibility =
                         if (items.isEmpty()) View.VISIBLE else View.GONE
                 }.onFailure {
-                    Toast.makeText(this, "Failed to load candidates: ${it.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Failed to load periods: ${it.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    private fun confirmDelete(candidate: CandidateItem) {
+    private fun confirmDelete(period: PeriodItem) {
         AlertDialog.Builder(this)
-            .setTitle("Delete Candidate")
-            .setMessage("Delete pair ${candidate.presidentName} & ${candidate.viceName}?")
+            .setTitle("Delete period")
+            .setMessage("Delete period ${period.title}?")
             .setPositiveButton("Delete") { _, _ ->
-                deleteCandidate(candidate)
+                deletePeriod(period)
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun deleteCandidate(candidate: CandidateItem) {
+    private fun deletePeriod(period: PeriodItem) {
         setLoading(true)
         thread {
             val result = runCatching {
-                val connection = (URL(ApiConfig.CANDIDATE_DELETE_URL).openConnection() as HttpURLConnection).apply {
+                val connection = (URL(ApiConfig.PERIOD_DELETE_URL).openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     doInput = true
                     doOutput = true
@@ -135,8 +128,8 @@ class CandidateData : AppCompatActivity() {
                 }
 
                 val payload = buildString {
-                    append("candidateid=")
-                    append(URLEncoder.encode(candidate.candidateId.toString(), "UTF-8"))
+                    append("periodid=")
+                    append(URLEncoder.encode(period.periodId.toString(), "UTF-8"))
                 }
 
                 OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use {
@@ -161,37 +154,42 @@ class CandidateData : AppCompatActivity() {
                 setLoading(false)
                 result.onSuccess { response ->
                     val success = response.optBoolean("success", response.optInt("status") == 1)
-                    Toast.makeText(this, response.optString("message", if (success) "Success" else "Failed"), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        response.optString("message", if (success) "Success" else "Failed"),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     if (success) {
-                        loadCandidates()
+                        loadPeriods()
                     }
                 }.onFailure {
-                    Toast.makeText(this, "Failed to delete candidate: ${it.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Failed to delete period: ${it.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    private fun parseCandidateResponse(response: String): List<CandidateItem> {
-        val array = JSONArray(response)
+    private fun parsePeriodResponse(response: String): List<PeriodItem> {
+        val root = extractJsonPayload(response)
+        val array = when {
+            root.startsWith("[") -> JSONArray(root)
+            root.startsWith("{") -> JSONObject(root).optJSONArray("data") ?: JSONArray()
+            else -> JSONArray()
+        }
+
         return buildList {
             for (index in 0 until array.length()) {
                 val item = array.optJSONObject(index) ?: continue
                 add(
-                    CandidateItem(
-                        candidateId = item.optInt("candidateid"),
-                        presidentPicture = item.optString("picture"),
-                        vicePicture = item.optString("vice_picture", item.optString("picture")),
-                        presidentStudentId = item.optInt("president_studentid", item.optInt("studentid")),
-                        viceStudentId = item.optInt("vice_studentid", item.optInt("studentid")),
-                        periodId = item.optInt("periodid"),
-                        presidentName = item.optString("president_name"),
-                        viceName = item.optString("vice_name"),
-                        vision = item.optString("vision"),
-                        mission = item.optString("mission"),
-                        periodTitle = firstNonBlank(
-                            item.optString("period_title"),
+                    PeriodItem(
+                        periodId = firstPositiveInt(
+                            item.optInt("periodid"),
+                            item.optInt("period_id"),
+                            item.optInt("id")
+                        ),
+                        title = firstNonBlank(
                             item.optString("title"),
+                            item.optString("period_title"),
                             item.optString("period")
                         ),
                         startDate = firstNonBlank(
@@ -201,12 +199,7 @@ class CandidateData : AppCompatActivity() {
                         endDate = firstNonBlank(
                             item.optString("enddate"),
                             item.optString("end_date")
-                        ),
-                        hasVoted = item.optInt("has_voted", 0) == 1,
-                        isVotedCandidate = item.optInt("is_voted_candidate", 0) == 1,
-                        voteCount = item.optInt("vote_count", 0),
-                        isWinner = item.optInt("is_winner", 0) == 1,
-                        displayMode = item.optString("display_mode", "voting")
+                        )
                     )
                 )
             }
@@ -214,10 +207,29 @@ class CandidateData : AppCompatActivity() {
     }
 
     private fun setLoading(isLoading: Boolean) {
-        findViewById<ExtendedFloatingActionButton>(R.id.btnAddCandidate).isEnabled = !isLoading
+        findViewById<FloatingActionButton>(R.id.btnAddPeriod).isEnabled = !isLoading
     }
 
     private fun firstNonBlank(vararg values: String): String {
         return values.firstOrNull { it.isNotBlank() } ?: ""
+    }
+
+    private fun firstPositiveInt(vararg values: Int): Int {
+        return values.firstOrNull { it > 0 } ?: 0
+    }
+
+    private fun extractJsonPayload(rawResponse: String): String {
+        val response = rawResponse.removePrefix("\uFEFF").trim()
+        if (response.startsWith("{") || response.startsWith("[")) {
+            return response
+        }
+
+        val firstObject = response.indexOf('{')
+        val firstArray = response.indexOf('[')
+        val start = listOf(firstObject, firstArray).filter { it >= 0 }.minOrNull() ?: return response
+        val endObject = response.lastIndexOf('}')
+        val endArray = response.lastIndexOf(']')
+        val end = maxOf(endObject, endArray)
+        return if (end >= start) response.substring(start, end + 1).trim() else response
     }
 }
