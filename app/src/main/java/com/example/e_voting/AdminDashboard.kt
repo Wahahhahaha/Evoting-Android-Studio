@@ -20,6 +20,10 @@ class AdminDashboard : AppCompatActivity() {
             startActivity(Intent(this, CandidateData::class.java))
         }
 
+        findViewById<MaterialCardView>(R.id.cardManageClass).setOnClickListener {
+            startActivity(Intent(this, ClassDataActivity::class.java))
+        }
+
         findViewById<MaterialCardView>(R.id.cardManageUser).setOnClickListener {
             startActivity(Intent(this, StudentData::class.java))
         }

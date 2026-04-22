@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 20, 2026 at 09:01 AM
+-- Generation Time: Apr 22, 2026 at 07:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,26 @@ SET time_zone = "+00:00";
 --
 -- Database: `voting`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `angkatan`
+--
+
+CREATE TABLE `angkatan` (
+  `angkatanid` int(11) NOT NULL,
+  `nama` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `angkatan`
+--
+
+INSERT INTO `angkatan` (`angkatanid`, `nama`) VALUES
+(1, 'X'),
+(2, 'XI'),
+(3, 'XII');
 
 -- --------------------------------------------------------
 
@@ -44,8 +64,10 @@ CREATE TABLE `candidate` (
 --
 
 INSERT INTO `candidate` (`candidateid`, `picture`, `vice_picture`, `president_studentid`, `vice_studentid`, `studentid`, `vision`, `mission`, `periodid`) VALUES
-(3, 'uploads/candidate_1776153846_8649dbba.jpg', 'uploads/vice_1776358494_70ec0cd1.jpg', 2, 3, 2, 'Mewujudkan lingkungan sekolah yang aktif dan kreatif', '1. Mengadakan kegiatan rutin\n2. Menyalurkan aspirasi siswa', 5),
-(14, 'uploads/president_1776358806_f34ee252.jpg', 'uploads/vice_1776358806_16026b03.jpg', 4, 5, 4, 'Menciptakan lingkungan sekolah yang disiplin dan berprestasi', '1. Program kedisiplinan\n2. Kompetisi akademik', 5);
+(15, 'uploads/president_1776669656_71181e97.jpg', 'uploads/vice_1776669656_f060c306.jpg', 2, 3, 2, 'asdf', 'asdf', 6),
+(16, 'uploads/president_1776669677_970674d4.jpg', 'uploads/vice_1776669677_9a14efc6.jpg', 4, 5, 4, 'asdf', 'asdf', 6),
+(17, 'uploads/president_1776669695_eae89b13.jpg', 'uploads/vice_1776669695_90476f4e.jpg', 6, 7, 6, 'asdf', 'asdf', 6),
+(18, 'uploads/president_1776670741_a6b1072e.jpg', 'uploads/vice_1776670741_dc9e31c4.jpg', 2, 3, 2, 'asdf', 'asdf', 7);
 
 -- --------------------------------------------------------
 
@@ -55,23 +77,37 @@ INSERT INTO `candidate` (`candidateid`, `picture`, `vice_picture`, `president_st
 
 CREATE TABLE `class` (
   `classid` int(11) NOT NULL,
-  `classname` varchar(255) NOT NULL
+  `classname` varchar(255) NOT NULL,
+  `jurusanid` int(11) NOT NULL,
+  `angkatanid` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `class`
 --
 
-INSERT INTO `class` (`classid`, `classname`) VALUES
-(1, 'X AKL'),
-(2, 'X BDP'),
-(3, 'X RPL'),
-(4, 'XI AKL'),
-(5, 'XI BDP'),
-(6, 'XI RPL'),
-(7, 'XII AKL'),
-(8, 'XII BDP'),
-(9, 'XII RPL\r\n');
+INSERT INTO `class` (`classid`, `classname`, `jurusanid`, `angkatanid`) VALUES
+(1, 'A', 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `jurusan`
+--
+
+CREATE TABLE `jurusan` (
+  `jurusanid` int(11) NOT NULL,
+  `nama` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `jurusan`
+--
+
+INSERT INTO `jurusan` (`jurusanid`, `nama`) VALUES
+(1, 'AKL'),
+(2, 'BDP'),
+(3, 'RPL');
 
 -- --------------------------------------------------------
 
@@ -112,8 +148,8 @@ CREATE TABLE `student` (
 --
 
 INSERT INTO `student` (`studentid`, `name`, `email`, `phonenumber`, `classid`, `userid`) VALUES
-(2, 'Andi Saputra', '', '', 1, 4),
-(3, 'Budi Santoso', '', '', 1, 5),
+(2, 'Andi Saputra', 'andi@gmail.com', '084323134345', 1, 4),
+(3, 'Budi Santoso', 'budi@gmail.com', '085623123081', 1, 5),
 (4, 'Citra Lestari', 'citra@gmail.com', '081234567001', 1, 6),
 (5, 'Dedi Pratama', 'dedi@gmail.com', '081234567002', 2, 7),
 (6, 'Eka Putri', 'eka@gmail.com', '081234567003', 3, 8),
@@ -144,8 +180,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`userid`, `username`, `password`, `levelid`) VALUES
 (1, 'admin', '$2y$12$O9wso5ya598BsysOG51izu/VqO0rWAsufnCm1cU3WBHmD322yn5Wy', 1),
-(4, 'a', '$2y$10$EEP9VP9GSIrOaXqKKGZF7OEvCzpPW.C/IeTS5kzeuB/UxKWSIPGAG$2y$12$oDbaedqA7pKm2iSlIbqvweOsH.Uf5cyi16MPNfkdItlV0D/CUVIw2', 2),
-(5, 'b', '$2y$10$kClU4ZivWgZfnAWABlcD.OpDaQw97iUoxakIN2j15OPJeKKtC3LGC$2y$12$Lc10VnQncW9Q4VZLqIoYkeaNXS8XZAbmhtX5ml7s4XSv9gdYkqfju', 2),
+(4, 'a', '$2y$12$u0zu1V4qJzAe0BcGeKrF8ufpGHTYWv6s6XVoLKtuCpoI2Iybh9JAS', 2),
+(5, 'b', '$2y$12$c1UPECbR2tJBwVFeKQz9NODpnjvKpT2ERUULjl/PbLL6sB8KRgj4m', 2),
 (6, 'c', '$2y$12$7dchPOTiKzV0.seA7/d7GOXuPfsbgLRXLmWs/87lVWRXZidd3NJBa', 2),
 (7, 'd', '$2y$12$kL/EBRgnwS6CIMFGMKz3/u6uuBV53LzA.qQvNewbCcRiIOcTm1rB6', 2),
 (8, 'e', '$2y$12$64/pznzYAKuEBCVp83vKWemDiQrySpQAlzJ8qYf/YYjcy0O/uKQXC', 2),
@@ -175,8 +211,18 @@ CREATE TABLE `vote` (
 --
 
 INSERT INTO `vote` (`voteid`, `studentid`, `candidateid`, `periodid`) VALUES
-(1, 13, 14, 5),
-(2, 4, 14, 5);
+(3, 2, 17, 6),
+(4, 3, 17, 6),
+(5, 4, 15, 6),
+(6, 5, 16, 6),
+(7, 6, 15, 6),
+(8, 7, 15, 6),
+(9, 8, 15, 6),
+(10, 9, 15, 6),
+(11, 10, 15, 6),
+(12, 11, 17, 6),
+(13, 12, 15, 6),
+(14, 13, 16, 6);
 
 -- --------------------------------------------------------
 
@@ -196,13 +242,18 @@ CREATE TABLE `voting_period` (
 --
 
 INSERT INTO `voting_period` (`periodid`, `title`, `startdate`, `enddate`) VALUES
-(2, '2023/2024', '2023-08-23', '2023-09-01'),
-(4, '2025/2026', '2025-04-16', '2025-04-30'),
-(5, '2026/2027', '2026-04-01', '2026-04-16');
+(6, '2024/2025', '2024-04-13', '2024-04-19'),
+(7, '2025/2026', '2026-04-13', '2026-04-21');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `angkatan`
+--
+ALTER TABLE `angkatan`
+  ADD PRIMARY KEY (`angkatanid`);
 
 --
 -- Indexes for table `candidate`
@@ -216,6 +267,12 @@ ALTER TABLE `candidate`
 --
 ALTER TABLE `class`
   ADD PRIMARY KEY (`classid`);
+
+--
+-- Indexes for table `jurusan`
+--
+ALTER TABLE `jurusan`
+  ADD PRIMARY KEY (`jurusanid`);
 
 --
 -- Indexes for table `level`
@@ -254,16 +311,28 @@ ALTER TABLE `voting_period`
 --
 
 --
+-- AUTO_INCREMENT for table `angkatan`
+--
+ALTER TABLE `angkatan`
+  MODIFY `angkatanid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `candidate`
 --
 ALTER TABLE `candidate`
-  MODIFY `candidateid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `candidateid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `class`
 --
 ALTER TABLE `class`
   MODIFY `classid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `jurusan`
+--
+ALTER TABLE `jurusan`
+  MODIFY `jurusanid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `level`
@@ -287,13 +356,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `vote`
 --
 ALTER TABLE `vote`
-  MODIFY `voteid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `voteid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `voting_period`
 --
 ALTER TABLE `voting_period`
-  MODIFY `periodid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `periodid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

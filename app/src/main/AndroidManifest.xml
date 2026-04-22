@@ -40,6 +40,15 @@
             android:name=".AddStudent"
             android:exported="false" />
         <activity
+            android:name=".AddClassActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditClassActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ClassDataActivity"
+            android:exported="false" />
+        <activity
             android:name=".StudentData"
             android:exported="false" />
         <activity
