@@ -9,13 +9,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userid = (int)($_POST['userid'] ?? 0);
     $name = trim($_POST['name'] ?? '');
     $username = trim($_POST['username'] ?? '');
-    $password = trim((string)($_POST['password'] ?? ''));
-    if ($password === '') {
-        $password = $username;
-    }
+    $email = trim($_POST['email'] ?? '');
+    $phonenumber = trim($_POST['phonenumber'] ?? '');
     $classid = (int)($_POST['classid'] ?? 0);
 
-    if ($studentid <= 0 || $userid <= 0 || $name === '' || $username === '' || $classid <= 0) {
+    if (
+        $studentid <= 0 ||
+        $userid <= 0 ||
+        $name === '' ||
+        $username === '' ||
+        $email === '' ||
+        $phonenumber === '' ||
+        $classid <= 0
+    ) {
         $response['message'] = 'Incomplete data';
         echo json_encode($response);
         exit;
@@ -35,13 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
-        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-        $updateUser = $conn->prepare('UPDATE users SET username = ?, password = ? WHERE userid = ?');
-        $updateUser->bind_param('ssi', $username, $passwordHash, $userid);
+        $updateUser = $conn->prepare('UPDATE users SET username = ? WHERE userid = ?');
+        $updateUser->bind_param('si', $username, $userid);
         $updateUser->execute();
 
-        $updateStudent = $conn->prepare('UPDATE student SET name = ?, classid = ? WHERE studentid = ? AND userid = ?');
-        $updateStudent->bind_param('siii', $name, $classid, $studentid, $userid);
+        $updateStudent = $conn->prepare('UPDATE student SET name = ?, email = ?, phonenumber = ?, classid = ? WHERE studentid = ? AND userid = ?');
+        $updateStudent->bind_param('sssiii', $name, $email, $phonenumber, $classid, $studentid, $userid);
         $updateStudent->execute();
 
         $conn->commit();

@@ -21,6 +21,8 @@ class EditStudent : AppCompatActivity() {
 
     private lateinit var usernameInput: TextInputEditText
     private lateinit var nameInput: TextInputEditText
+    private lateinit var emailInput: TextInputEditText
+    private lateinit var phoneInput: TextInputEditText
     private lateinit var classSpinner: Spinner
     private lateinit var saveButton: Button
 
@@ -39,11 +41,20 @@ class EditStudent : AppCompatActivity() {
 
         usernameInput = findViewById(R.id.usn)
         nameInput = findViewById(R.id.name)
+        emailInput = findViewById(R.id.email)
+        phoneInput = findViewById(R.id.phone)
         classSpinner = findViewById(R.id.cls)
         saveButton = findViewById(R.id.btnUpdate)
 
         usernameInput.setText(intent.getStringExtra(EXTRA_USERNAME).orEmpty())
         nameInput.setText(intent.getStringExtra(EXTRA_NAME).orEmpty())
+        emailInput.setText(
+            intent.getStringExtra(EXTRA_EMAIL)
+                ?.trim()
+                ?.ifBlank { null }
+                ?: intent.getStringExtra(EXTRA_USERNAME).orEmpty()
+        )
+        phoneInput.setText(intent.getStringExtra(EXTRA_PHONE_NUMBER).orEmpty())
 
         saveButton.setOnClickListener {
             updateStudent()
@@ -77,7 +88,7 @@ class EditStudent : AppCompatActivity() {
                     classSpinner.adapter = ArrayAdapter(
                         this,
                         android.R.layout.simple_spinner_dropdown_item,
-                        classItems.map { it.className }
+                        classItems.map { it.displayName }
                     )
 
                     val selectedIndex = classItems.indexOfFirst { it.classId == selectedClassId }
@@ -100,9 +111,19 @@ class EditStudent : AppCompatActivity() {
     private fun updateStudent() {
         val username = usernameInput.text?.toString()?.trim().orEmpty()
         val name = nameInput.text?.toString()?.trim().orEmpty()
+        val email = emailInput.text?.toString()?.trim().orEmpty()
+        val phoneNumber = phoneInput.text?.toString()?.trim().orEmpty()
         val selectedClass = classItems.getOrNull(classSpinner.selectedItemPosition)
 
-        if (studentId <= 0 || userId <= 0 || username.isBlank() || name.isBlank() || selectedClass == null) {
+        if (
+            studentId <= 0 ||
+            userId <= 0 ||
+            username.isBlank() ||
+            name.isBlank() ||
+            email.isBlank() ||
+            phoneNumber.isBlank() ||
+            selectedClass == null
+        ) {
             Toast.makeText(this, "Incomplete student data", Toast.LENGTH_SHORT).show()
             return
         }
@@ -132,8 +153,10 @@ class EditStudent : AppCompatActivity() {
                     append(URLEncoder.encode(username, "UTF-8"))
                     append("&name=")
                     append(URLEncoder.encode(name, "UTF-8"))
-                    append("&password=")
-                    append(URLEncoder.encode(username, "UTF-8"))
+                    append("&email=")
+                    append(URLEncoder.encode(email, "UTF-8"))
+                    append("&phonenumber=")
+                    append(URLEncoder.encode(phoneNumber, "UTF-8"))
                     append("&classid=")
                     append(URLEncoder.encode(selectedClass.classId.toString(), "UTF-8"))
                 }
@@ -185,14 +208,50 @@ class EditStudent : AppCompatActivity() {
         return buildList {
             for (index in 0 until array.length()) {
                 val item = array.optJSONObject(index) ?: continue
+                val className = firstNonBlank(item.optString("classname"))
+                if (className.isBlank()) continue
+                val majorName = firstNonBlank(
+                    item.optString("jurusan"),
+                    item.optString("jurusanname"),
+                    item.optString("nama_jurusan"),
+                    item.optString("major"),
+                    item.optString("majorname")
+                )
+                val batchName = firstNonBlank(
+                    item.optString("angkatan"),
+                    item.optString("angkatanname"),
+                    item.optString("tahun_angkatan"),
+                    item.optString("batch"),
+                    item.optString("batchyear")
+                )
+                val displayName = firstNonBlank(
+                    item.optString("classlabel"),
+                    listOf(majorName, batchName, className)
+                        .filter { it.isNotBlank() }
+                        .joinToString(" ")
+                )
+
                 add(
                     ClassItem(
                         classId = item.optInt("classid"),
-                        className = item.optString("classname")
+                        className = className,
+                        majorName = majorName,
+                        batchName = batchName,
+                        displayName = displayName
                     )
                 )
             }
         }
+    }
+
+    private fun firstNonBlank(vararg values: String): String {
+        for (value in values) {
+            val normalized = value.trim()
+            if (normalized.isNotBlank() && !normalized.equals("null", ignoreCase = true)) {
+                return normalized
+            }
+        }
+        return ""
     }
 
     companion object {
@@ -200,6 +259,8 @@ class EditStudent : AppCompatActivity() {
         const val EXTRA_USER_ID = "extra_user_id"
         const val EXTRA_NAME = "extra_name"
         const val EXTRA_USERNAME = "extra_username"
+        const val EXTRA_EMAIL = "extra_email"
+        const val EXTRA_PHONE_NUMBER = "extra_phone_number"
         const val EXTRA_CLASS_ID = "extra_class_id"
     }
 }

@@ -55,6 +55,13 @@ if (
                 c.classname,
                 j.`{$jurusanNameCol}` AS jurusan,
                 a.`{$angkatanNameCol}` AS angkatan,
+                TRIM(CONCAT(
+                    COALESCE(j.`{$jurusanNameCol}`, ''),
+                    ' ',
+                    COALESCE(a.`{$angkatanNameCol}`, ''),
+                    ' ',
+                    COALESCE(c.classname, '')
+                )) AS classlabel,
                 COUNT(s.studentid) AS studentcount
             FROM class c
             LEFT JOIN jurusan j ON j.`{$jurusanPk}` = c.`{$classJurusanFk}`
@@ -68,6 +75,7 @@ if (
                 c.classname,
                 '' AS jurusan,
                 '' AS angkatan,
+                c.classname AS classlabel,
                 COUNT(s.studentid) AS studentcount
             FROM class c
             LEFT JOIN student s ON s.classid = c.classid

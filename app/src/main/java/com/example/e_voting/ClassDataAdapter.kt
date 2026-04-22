@@ -26,7 +26,6 @@ class ClassDataAdapter(
     override fun getItemCount(): Int = items.size
 
     inner class ClassViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val initialText: TextView = itemView.findViewById(R.id.txtClassInitial)
         private val classNameText: TextView = itemView.findViewById(R.id.txtClassName)
         private val detailText: TextView = itemView.findViewById(R.id.txtStudentCount)
         private val editButton: ImageButton = itemView.findViewById(R.id.btnEditClass)
@@ -38,7 +37,6 @@ class ClassDataAdapter(
             val majorLabel = if (item.majorName.isNotBlank()) item.majorName else "-"
 
             classNameText.text = "$majorLabel $batchLabel $classLabel"
-            initialText.text = item.className.firstOrNull()?.uppercase() ?: "#"
 
             detailText.text = when {
                 item.studentCount >= 0 -> "${item.studentCount} students registered"

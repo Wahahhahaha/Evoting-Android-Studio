@@ -5,6 +5,8 @@ data class StudentItem(
     val userId: Int,
     val name: String,
     val username: String,
+    val email: String = "",
+    val phoneNumber: String = "",
     val classId: Int,
     val className: String
 )

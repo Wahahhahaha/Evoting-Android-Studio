@@ -67,7 +67,7 @@ class AddStudent : AppCompatActivity() {
                     classSpinner.adapter = ArrayAdapter(
                         this,
                         android.R.layout.simple_spinner_dropdown_item,
-                        classItems.map { it.className }
+                        classItems.map { it.displayName }
                     )
                     saveButton.isEnabled = classItems.isNotEmpty()
                 }.onFailure {
@@ -166,13 +166,49 @@ class AddStudent : AppCompatActivity() {
         return buildList {
             for (index in 0 until array.length()) {
                 val item = array.optJSONObject(index) ?: continue
+                val className = firstNonBlank(item.optString("classname"))
+                if (className.isBlank()) continue
+                val majorName = firstNonBlank(
+                    item.optString("jurusan"),
+                    item.optString("jurusanname"),
+                    item.optString("nama_jurusan"),
+                    item.optString("major"),
+                    item.optString("majorname")
+                )
+                val batchName = firstNonBlank(
+                    item.optString("angkatan"),
+                    item.optString("angkatanname"),
+                    item.optString("tahun_angkatan"),
+                    item.optString("batch"),
+                    item.optString("batchyear")
+                )
+                val displayName = firstNonBlank(
+                    item.optString("classlabel"),
+                    listOf(majorName, batchName, className)
+                        .filter { it.isNotBlank() }
+                        .joinToString(" ")
+                )
+
                 add(
                     ClassItem(
                         classId = item.optInt("classid"),
-                        className = item.optString("classname")
+                        className = className,
+                        majorName = majorName,
+                        batchName = batchName,
+                        displayName = displayName
                     )
                 )
             }
         }
+    }
+
+    private fun firstNonBlank(vararg values: String): String {
+        for (value in values) {
+            val normalized = value.trim()
+            if (normalized.isNotBlank() && !normalized.equals("null", ignoreCase = true)) {
+                return normalized
+            }
+        }
+        return ""
     }
 }

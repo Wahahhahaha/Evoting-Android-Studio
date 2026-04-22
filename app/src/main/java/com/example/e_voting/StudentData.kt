@@ -63,6 +63,8 @@ class StudentData : AppCompatActivity() {
                     putExtra(EditStudent.EXTRA_USER_ID, student.userId)
                     putExtra(EditStudent.EXTRA_NAME, student.name)
                     putExtra(EditStudent.EXTRA_USERNAME, student.username)
+                    putExtra(EditStudent.EXTRA_EMAIL, student.email)
+                    putExtra(EditStudent.EXTRA_PHONE_NUMBER, student.phoneNumber)
                     putExtra(EditStudent.EXTRA_CLASS_ID, student.classId)
                 }
                 formLauncher.launch(intent)
@@ -213,6 +215,8 @@ class StudentData : AppCompatActivity() {
                         userId = item.optInt("userid"),
                         name = item.optString("name"),
                         username = item.optString("username"),
+                        email = item.optString("email"),
+                        phoneNumber = item.optString("phonenumber"),
                         classId = item.optInt("classid"),
                         className = item.optString("classname")
                     )
