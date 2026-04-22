@@ -5,6 +5,8 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +27,11 @@ class PeriodData : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: PeriodAdapter
     private val periods = mutableListOf<PeriodItem>()
+    private val allPeriods = mutableListOf<PeriodItem>()
+    private lateinit var btnPrev: ImageButton
+    private lateinit var btnNext: ImageButton
+    private lateinit var txtPageIndicator: TextView
+    private var currentPage: Int = 1
 
     private val formLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -38,6 +45,9 @@ class PeriodData : AppCompatActivity() {
         setContentView(R.layout.period_data_activity)
 
         recyclerView = findViewById(R.id.rvPeriod)
+        btnPrev = findViewById(R.id.btnPrev)
+        btnNext = findViewById(R.id.btnNext)
+        txtPageIndicator = findViewById(R.id.txtPageIndicator)
         adapter = PeriodAdapter(
             items = periods,
             onEdit = { period ->
@@ -56,6 +66,7 @@ class PeriodData : AppCompatActivity() {
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
+        setupPaginationControls()
 
         findViewById<FloatingActionButton>(R.id.btnAddPeriod).setOnClickListener {
             formLauncher.launch(Intent(this, AddPeriod::class.java))
@@ -88,11 +99,10 @@ class PeriodData : AppCompatActivity() {
             runOnUiThread {
                 setLoading(false)
                 result.onSuccess { items ->
-                    periods.clear()
-                    periods.addAll(items)
-                    adapter.notifyDataSetChanged()
-                    findViewById<View>(R.id.txtEmptyState).visibility =
-                        if (items.isEmpty()) View.VISIBLE else View.GONE
+                    allPeriods.clear()
+                    allPeriods.addAll(items)
+                    currentPage = 1
+                    renderCurrentPage()
                 }.onFailure {
                     Toast.makeText(this, "Failed to load periods: ${it.message}", Toast.LENGTH_LONG).show()
                 }
@@ -210,6 +220,55 @@ class PeriodData : AppCompatActivity() {
         findViewById<FloatingActionButton>(R.id.btnAddPeriod).isEnabled = !isLoading
     }
 
+    private fun setupPaginationControls() {
+        btnPrev.setOnClickListener {
+            if (currentPage > 1) {
+                currentPage -= 1
+                renderCurrentPage()
+            }
+        }
+
+        btnNext.setOnClickListener {
+            val totalPages = calculateTotalPages()
+            if (currentPage < totalPages) {
+                currentPage += 1
+                renderCurrentPage()
+            }
+        }
+    }
+
+    private fun renderCurrentPage() {
+        val totalPages = calculateTotalPages()
+        if (currentPage > totalPages) {
+            currentPage = totalPages
+        }
+
+        val startIndex = (currentPage - 1) * PAGE_SIZE
+        val endIndex = minOf(startIndex + PAGE_SIZE, allPeriods.size)
+        val pageItems = if (allPeriods.isEmpty()) {
+            emptyList()
+        } else {
+            allPeriods.subList(startIndex, endIndex)
+        }
+
+        periods.clear()
+        periods.addAll(pageItems)
+        adapter.notifyDataSetChanged()
+
+        findViewById<View>(R.id.txtEmptyState).visibility =
+            if (allPeriods.isEmpty()) View.VISIBLE else View.GONE
+        txtPageIndicator.text = "Page $currentPage of $totalPages"
+        btnPrev.isEnabled = currentPage > 1 && allPeriods.isNotEmpty()
+        btnNext.isEnabled = currentPage < totalPages && allPeriods.isNotEmpty()
+        btnPrev.alpha = if (btnPrev.isEnabled) 1f else 0.4f
+        btnNext.alpha = if (btnNext.isEnabled) 1f else 0.4f
+    }
+
+    private fun calculateTotalPages(): Int {
+        if (allPeriods.isEmpty()) return 1
+        return (allPeriods.size + PAGE_SIZE - 1) / PAGE_SIZE
+    }
+
     private fun firstNonBlank(vararg values: String): String {
         return values.firstOrNull { it.isNotBlank() } ?: ""
     }
@@ -231,5 +290,9 @@ class PeriodData : AppCompatActivity() {
         val endArray = response.lastIndexOf(']')
         val end = maxOf(endObject, endArray)
         return if (end >= start) response.substring(start, end + 1).trim() else response
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 10
     }
 }

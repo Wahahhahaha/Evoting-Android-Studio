@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" 
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,7 +9,7 @@
     <View
         android:id="@+id/headerView"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
+        android:layout_height="180dp"
         android:background="@drawable/sunny_header_wave"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -18,10 +18,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:text="Student\nDatabase"
         android:textColor="#FFFFFF"
-        android:textSize="28sp"
+        android:textSize="26sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -37,25 +37,60 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="#FFFFFF" />
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/searchCard"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleManage">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#FBC02D" />
+
+            <EditText
+                android:id="@+id/etSearchStudent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:hint="Search by name or NIS..."
+                android:inputType="text"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvStudent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:clipToPadding="false"
         android:paddingHorizontal="16dp"
-        android:paddingBottom="88dp"
-        app:layout_constraintTop_toBottomOf="@id/headerView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@id/paginationLayout"
+        app:layout_constraintTop_toBottomOf="@id/searchCard"
         tools:listitem="@layout/student_item_data" />
 
     <TextView
         android:id="@+id/txtEmptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No student data yet"
+        android:text="No student matches your search"
         android:textColor="#8D6E63"
         android:textSize="16sp"
         android:visibility="gone"
@@ -64,11 +99,49 @@
         app:layout_constraintStart_toStartOf="@id/rvStudent"
         app:layout_constraintTop_toTopOf="@id/rvStudent" />
 
+    <LinearLayout
+        android:id="@+id/paginationLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingVertical="12dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnPrev"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_previous"
+            app:tint="#FBC02D" />
+
+        <TextView
+            android:id="@+id/txtPageIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:text="Page 1 of 20"
+            android:textColor="#5D4037"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnNext"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_next"
+            app:tint="#FBC02D" />
+    </LinearLayout>
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/btnAddStudent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="80dp"
         android:backgroundTint="#FBC02D"
         android:text="Add Student"
         android:textColor="#FFFFFF"

@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="6dp">
+    android:layout_marginVertical="10dp"
+    app:cardCornerRadius="28dp"
+    app:cardElevation="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,94 +20,46 @@
             android:layout_marginBottom="16dp">
 
             <TextView
-                android:id="@+id/txtPeriodTag"
+                android:id="@+id/txtPeriodTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#FFF9C4"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:text="Period: 2026/2027"
+                android:text="Periode 2026/2027"
+                android:textColor="#3E2723"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtTotalAllVotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/txtPeriodTitle"
+                android:text="Total Suara: 3,500"
                 android:textColor="#F9A825"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/txtWinnerBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
-                android:background="#E8F5E9"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:text="🏆 WINNER"
-                android:textColor="#2E7D32"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:visibility="visible" />
+                android:alpha="0.2"
+                android:src="@android:drawable/ic_menu_sort_by_size"
+                app:tint="#FBC02D" />
         </RelativeLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="16dp"
+            android:background="#EEEEEE" />
+
         <LinearLayout
+            android:id="@+id/containerCandidates"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/txtCandidateNumber"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:background="@drawable/bg_circle_sunny"
-                android:backgroundTint="#FBC02D"
-                android:gravity="center"
-                android:text="01"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/txtPairNames"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Andi &amp; Budi"
-                    android:textColor="#3E2723"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txtTotalVotes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total: 1,250 Votes"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/txtPercentage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="65%"
-                android:textColor="#F9A825"
-                android:textSize="24sp"
-                android:textStyle="bold" />
         </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/progressVotes"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="12dp"
-            android:layout_marginTop="16dp"
-            android:progress="65"
-            android:progressTint="#FBC02D"
-            android:scaleY="2" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

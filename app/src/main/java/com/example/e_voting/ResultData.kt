@@ -2,6 +2,8 @@ package com.example.e_voting
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,17 +17,26 @@ import kotlin.concurrent.thread
 class ResultData : AppCompatActivity() {
 
     private val items = mutableListOf<VotingResultItem>()
+    private val allItems = mutableListOf<VotingResultItem>()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: VotingResultAdapter
+    private lateinit var btnPrev: ImageButton
+    private lateinit var btnNext: ImageButton
+    private lateinit var txtPageIndicator: TextView
+    private var currentPage: Int = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.result_data_activity)
 
         recyclerView = findViewById(R.id.rvVotingResult)
+        btnPrev = findViewById(R.id.btnPrev)
+        btnNext = findViewById(R.id.btnNext)
+        txtPageIndicator = findViewById(R.id.txtPageIndicator)
         adapter = VotingResultAdapter(items)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
+        setupPaginationControls()
     }
 
     override fun onResume() {
@@ -53,9 +64,10 @@ class ResultData : AppCompatActivity() {
             runOnUiThread {
                 setLoading(false)
                 result.onSuccess { parsed ->
-                    items.clear()
-                    items.addAll(parsed)
-                    adapter.notifyDataSetChanged()
+                    allItems.clear()
+                    allItems.addAll(parsed)
+                    currentPage = 1
+                    renderCurrentPage()
                 }.onFailure {
                     Toast.makeText(this, "Failed to load voting results: ${it.message}", Toast.LENGTH_LONG).show()
                 }
@@ -87,25 +99,37 @@ class ResultData : AppCompatActivity() {
             .groupBy { it.periodId }
             .mapValues { entry -> entry.value.sumOf { it.voteCount } }
 
-        return rawRows.map { row ->
-            val periodTotal = totalVotesByPeriod[row.periodId] ?: 0
-            val percent = if (periodTotal > 0) {
-                ((row.voteCount.toDouble() / periodTotal.toDouble()) * 100.0).toInt()
-            } else {
-                0
-            }
+        return rawRows
+            .groupBy { it.periodId }
+            .map { (periodId, periodRows) ->
+                val periodTitle = periodRows.firstOrNull()?.periodTitle ?: "Unknown Period"
+                val periodTotal = totalVotesByPeriod[periodId] ?: 0
+                val candidates = periodRows
+                    .map { row ->
+                        val percent = if (periodTotal > 0) {
+                            ((row.voteCount.toDouble() / periodTotal.toDouble()) * 100.0).toInt()
+                        } else {
+                            0
+                        }
+                        CandidateResultItem(
+                            candidateId = row.candidateId,
+                            presidentName = row.presidentName,
+                            viceName = row.viceName,
+                            voteCount = row.voteCount,
+                            percentage = percent,
+                            isWinner = row.isWinner
+                        )
+                    }
+                    .sortedByDescending { it.voteCount }
 
-            VotingResultItem(
-                candidateId = row.candidateId,
-                periodId = row.periodId,
-                periodTitle = row.periodTitle,
-                presidentName = row.presidentName,
-                viceName = row.viceName,
-                voteCount = row.voteCount,
-                percentage = percent,
-                isWinner = row.isWinner
-            )
-        }
+                VotingResultItem(
+                    periodId = periodId,
+                    periodTitle = periodTitle,
+                    totalVotes = periodTotal,
+                    candidates = candidates
+                )
+            }
+            .sortedByDescending { it.periodId }
     }
 
     private fun setLoading(isLoading: Boolean) {
@@ -114,6 +138,55 @@ class ResultData : AppCompatActivity() {
         if (isLoading && items.isEmpty()) {
             recyclerView.visibility = View.VISIBLE
         }
+    }
+
+    private fun setupPaginationControls() {
+        btnPrev.setOnClickListener {
+            if (currentPage > 1) {
+                currentPage -= 1
+                renderCurrentPage()
+            }
+        }
+
+        btnNext.setOnClickListener {
+            val totalPages = calculateTotalPages()
+            if (currentPage < totalPages) {
+                currentPage += 1
+                renderCurrentPage()
+            }
+        }
+    }
+
+    private fun renderCurrentPage() {
+        val totalPages = calculateTotalPages()
+        if (currentPage > totalPages) {
+            currentPage = totalPages
+        }
+
+        val startIndex = (currentPage - 1) * PAGE_SIZE
+        val endIndex = minOf(startIndex + PAGE_SIZE, allItems.size)
+        val pageItems = if (allItems.isEmpty()) {
+            emptyList()
+        } else {
+            allItems.subList(startIndex, endIndex)
+        }
+
+        items.clear()
+        items.addAll(pageItems)
+        adapter.notifyDataSetChanged()
+
+        findViewById<View>(R.id.txtEmptyState).visibility =
+            if (allItems.isEmpty()) View.VISIBLE else View.GONE
+        txtPageIndicator.text = "Page $currentPage of $totalPages"
+        btnPrev.isEnabled = currentPage > 1 && allItems.isNotEmpty()
+        btnNext.isEnabled = currentPage < totalPages && allItems.isNotEmpty()
+        btnPrev.alpha = if (btnPrev.isEnabled) 1f else 0.4f
+        btnNext.alpha = if (btnNext.isEnabled) 1f else 0.4f
+    }
+
+    private fun calculateTotalPages(): Int {
+        if (allItems.isEmpty()) return 1
+        return (allItems.size + PAGE_SIZE - 1) / PAGE_SIZE
     }
 
     private data class RawRow(
@@ -125,4 +198,8 @@ class ResultData : AppCompatActivity() {
         val voteCount: Int,
         val isWinner: Boolean
     )
+
+    companion object {
+        private const val PAGE_SIZE = 10
+    }
 }

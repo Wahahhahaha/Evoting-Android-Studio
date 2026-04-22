@@ -3,7 +3,7 @@ package com.example.e_voting
 object ApiConfig {
     // 10.0.2.2 dipakai saat aplikasi dijalankan dari Android Emulator.
     // Jika memakai HP fisik, ganti dengan IP laptop/PC yang menjalankan XAMPP.
-    const val BASE_URL = "http://192.168.110.205/voting/"
+    const val BASE_URL = "http://192.168.0.18/voting/"
     const val LOGIN_URL = "${BASE_URL}Login.php"
     const val STUDENT_LIST_URL = "${BASE_URL}Tampilsiswa.php"
     const val STUDENT_ADD_URL = "${BASE_URL}Tambahsiswa.php"

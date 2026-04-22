@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="45dp"
-        android:text="Voting Results 📊"
+        android:text="Voting Results"
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -31,10 +31,61 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        android:paddingHorizontal="12dp"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingHorizontal="12dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@id/paginationLayout"
         app:layout_constraintTop_toBottomOf="@id/headerView"
         tools:listitem="@layout/result_item_data" />
+
+    <TextView
+        android:id="@+id/txtEmptyState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No voting result data yet"
+        android:textColor="#8D6E63"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rvVotingResult"
+        app:layout_constraintEnd_toEndOf="@id/rvVotingResult"
+        app:layout_constraintStart_toStartOf="@id/rvVotingResult"
+        app:layout_constraintTop_toTopOf="@id/rvVotingResult" />
+
+    <LinearLayout
+        android:id="@+id/paginationLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingVertical="12dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnPrev"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_previous"
+            app:tint="#FBC02D" />
+
+        <TextView
+            android:id="@+id/txtPageIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:text="Page 1 of 1"
+            android:textColor="#5D4037"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnNext"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_next"
+            app:tint="#FBC02D" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
